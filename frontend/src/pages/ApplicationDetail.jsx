@@ -210,7 +210,13 @@ export default function ApplicationDetail() {
   };
 
   if (loading) {
-    return <div style={{ padding: 40, textAlign: 'center' }}><div className="spinner" style={{ margin: '0 auto' }} /></div>;
+    return (
+      <div className="app-detail">
+        <div className="app-detail-loading">
+          <div className="spinner" />
+        </div>
+      </div>
+    );
   }
 
   if (!app) {
