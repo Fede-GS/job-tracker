@@ -1,0 +1,32 @@
+.job-parser {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.job-parser-header {
+  margin-bottom: 12px;
+}
+
+.job-parser-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.job-parser-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.job-parser-input {
+  margin-bottom: 12px;
+}
+
+.job-parser-error {
+  color: var(--error);
+  font-size: 13px;
+  margin-bottom: 8px;
+}

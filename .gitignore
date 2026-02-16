@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.env
+
+# Backend
+backend/instance/
+backend/uploads/
+*.db
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Launcher temp files
+_run_backend.cmd
+_run_frontend.cmd
+crea-icona-desktop.vbs
+
+# Windows artifacts
+nul
+To tart.txt
+
+# Claude Code
+.claude/

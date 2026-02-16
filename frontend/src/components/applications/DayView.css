@@ -1,0 +1,132 @@
+.day-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.day-view-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.day-view-date {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.day-view-count {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.day-view-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.day-app-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all var(--transition);
+  border-left: 4px solid transparent;
+}
+
+.day-app-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.day-app-card.draft {
+  border-left-color: #eab308;
+}
+
+.day-app-card.sent {
+  border-left-color: var(--status-sent);
+}
+
+.day-app-card.interview {
+  border-left-color: #22c55e;
+}
+
+.day-app-card.rejected {
+  border-left-color: #9ca3af;
+}
+
+.day-app-card.rejected .day-app-role {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.day-app-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.day-app-info {
+  flex: 1;
+}
+
+.day-app-role {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.day-app-company {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.day-app-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.day-app-location,
+.day-app-deadline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.day-view-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.day-view-empty p {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .day-view-header {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .day-view-date {
+    font-size: 18px;
+  }
+
+  .day-app-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

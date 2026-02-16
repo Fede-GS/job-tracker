@@ -1,0 +1,56 @@
+.smart-tip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--gradient-accent-subtle);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  animation: fadeInUp 0.4s ease;
+}
+
+[data-theme="dark"] .smart-tip {
+  background: rgba(129, 140, 248, 0.08);
+  border-color: rgba(129, 140, 248, 0.15);
+}
+
+.smart-tip-icon {
+  color: var(--accent);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.smart-tip-message {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.smart-tip-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.smart-tip-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: var(--radius);
+  transition: all var(--transition);
+  display: flex;
+}
+
+.smart-tip-dismiss:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.smart-tip-dismiss .material-icon {
+  font-size: 18px;
+}

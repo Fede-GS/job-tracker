@@ -1,0 +1,138 @@
+.week-view {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.week-day-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.week-day-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.week-day-header.today {
+  background: var(--accent-light);
+  border-left: 3px solid var(--accent);
+}
+
+.week-day-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.week-day-date {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.week-day-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.week-day-apps {
+  padding: 8px;
+}
+
+.week-app-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  border-left: 3px solid transparent;
+}
+
+.week-app-item:hover {
+  background: var(--bg-secondary);
+}
+
+.week-app-item.draft {
+  border-left-color: #eab308;
+}
+
+.week-app-item.sent {
+  border-left-color: var(--status-sent);
+}
+
+.week-app-item.interview {
+  border-left-color: #22c55e;
+}
+
+.week-app-item.rejected {
+  border-left-color: #9ca3af;
+}
+
+.week-app-item.rejected .week-app-role {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.week-app-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.week-app-role {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.week-app-company {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.week-app-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.week-app-location {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.week-day-empty {
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .week-app-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .week-app-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

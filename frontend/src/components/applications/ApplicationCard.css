@@ -1,0 +1,54 @@
+.app-card {
+  display: block;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all var(--transition-smooth);
+  animation: fadeInUp 0.3s ease backwards;
+}
+
+.app-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(99, 102, 241, 0.1);
+  transform: translateY(-3px);
+}
+
+.app-card-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.app-card-role {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.app-card-company {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.app-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.app-card-meta span::before {
+  content: '';
+}
+
+.app-card-location::before,
+.app-card-salary::before,
+.app-card-date::before {
+  margin-right: 4px;
+}
