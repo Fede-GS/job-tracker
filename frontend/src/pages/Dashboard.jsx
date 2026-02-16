@@ -74,6 +74,23 @@ export default function Dashboard() {
     }
   };
 
+  // Smart tips based on data (must be before any conditional return)
+  const smartTips = useMemo(() => {
+    const tips = [];
+    if (stats && stats.total_applications > 0) {
+      if (stats.this_week === 0) {
+        tips.push({ icon: 'schedule', messageKey: 'tips.noAppsThisWeek', actionKey: 'tips.applyNow', to: '/applications/new' });
+      }
+      if (followups.length > 0) {
+        tips.push({ icon: 'mail', messageKey: 'tips.pendingFollowups', count: followups.length });
+      }
+      if (stats.avg_match_score && stats.avg_match_score >= 7) {
+        tips.push({ icon: 'trending_up', messageKey: 'tips.goodMatchScore' });
+      }
+    }
+    return tips;
+  }, [stats, followups]);
+
   if (loading) {
     return (
       <div className="dashboard">
@@ -102,23 +119,6 @@ export default function Dashboard() {
     : [];
 
   const hasDeadlines = deadlines.upcoming?.length > 0 || deadlines.overdue?.length > 0;
-
-  // Smart tips based on data
-  const smartTips = useMemo(() => {
-    const tips = [];
-    if (stats && stats.total_applications > 0) {
-      if (stats.this_week === 0) {
-        tips.push({ icon: 'schedule', messageKey: 'tips.noAppsThisWeek', actionKey: 'tips.applyNow', to: '/applications/new' });
-      }
-      if (followups.length > 0) {
-        tips.push({ icon: 'mail', messageKey: 'tips.pendingFollowups', count: followups.length });
-      }
-      if (stats.avg_match_score && stats.avg_match_score >= 7) {
-        tips.push({ icon: 'trending_up', messageKey: 'tips.goodMatchScore' });
-      }
-    }
-    return tips;
-  }, [stats, followups]);
 
   return (
     <div className="dashboard">
