@@ -36,8 +36,10 @@ export default function ApplicationsList() {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
 
-  // Calendar view state
-  const [viewMode, setViewMode] = useState('list');
+  // Calendar view state — remember last selection
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('app_view_mode') || 'calendar';
+  });
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarApps, setCalendarApps] = useState([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
@@ -91,10 +93,15 @@ export default function ApplicationsList() {
 
   const goToday = useCallback(() => setCurrentDate(new Date()), []);
 
+  const changeViewMode = useCallback((mode) => {
+    setViewMode(mode);
+    localStorage.setItem('app_view_mode', mode);
+  }, []);
+
   const handleDateClick = useCallback((day) => {
     setCurrentDate(day);
-    setViewMode('day');
-  }, []);
+    changeViewMode('day');
+  }, [changeViewMode]);
 
   const handleAppClick = useCallback((id) => {
     navigate(`/applications/${id}`);
@@ -158,7 +165,7 @@ export default function ApplicationsList() {
               <button
                 key={mode.key}
                 className={`view-mode-btn ${viewMode === mode.key ? 'active' : ''}`}
-                onClick={() => setViewMode(mode.key)}
+                onClick={() => changeViewMode(mode.key)}
                 title={t(mode.labelKey)}
               >
                 <span className="material-icon">{mode.icon}</span>

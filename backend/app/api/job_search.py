@@ -36,6 +36,52 @@ def _get_profile_dict():
     return profile.to_dict() if profile else {}
 
 
+@bp.route('/job-search/smart-suggestions', methods=['GET'])
+def smart_suggestions():
+    """Generate search queries based on user profile."""
+    gemini, error_response, status = _get_gemini_service()
+    if error_response:
+        return error_response, status
+
+    profile = _get_profile_dict()
+    if not profile.get('full_name'):
+        return jsonify({'error': {'message': 'Complete your profile first.'}}), 400
+
+    # Build context from profile
+    skills = profile.get('skills', [])
+    experiences = profile.get('work_experiences', [])
+    summary = profile.get('professional_summary', '')
+    location = profile.get('location', '')
+
+    recent_roles = [exp.get('title', '') for exp in experiences[:3] if exp.get('title')]
+    skill_names = [s.get('name', '') if isinstance(s, dict) else str(s) for s in skills[:10]]
+
+    prompt = f"""Based on this professional profile, generate 3-5 job search queries that would find the best matching positions.
+
+Profile summary: {summary}
+Recent roles: {', '.join(recent_roles)}
+Key skills: {', '.join(skill_names)}
+Location: {location}
+
+Return ONLY a JSON array of objects with "query" (search term) and "location" (suggested location or empty string).
+Example: [{{"query": "Senior Software Engineer", "location": "Milan"}}, {{"query": "Tech Lead Python", "location": ""}}]
+Keep queries concise (2-4 words). Focus on roles that match the profile.
+Return ONLY valid JSON, no markdown."""
+
+    try:
+        result = gemini._generate(prompt)
+        suggestions = gemini._parse_json_response(result)
+        return jsonify({'suggestions': suggestions, 'profile_location': location})
+    except Exception as e:
+        # Fallback: generate suggestions from profile data directly
+        fallback = []
+        for role in recent_roles[:3]:
+            fallback.append({'query': role, 'location': location})
+        if not fallback and skill_names:
+            fallback.append({'query': ' '.join(skill_names[:2]), 'location': location})
+        return jsonify({'suggestions': fallback, 'profile_location': location})
+
+
 @bp.route('/job-search/search', methods=['GET'])
 def search_jobs():
     service, error_response, status = _get_adzuna_service()

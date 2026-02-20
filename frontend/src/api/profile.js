@@ -17,6 +17,6 @@ export const tailorCv = (jobPosting, profile, instructions) => api.post('/ai/tai
 export const tailorCoverLetter = (jobPosting, profile, company, role, instructions) =>
   api.post('/ai/tailor-cover-letter', { job_posting: jobPosting, profile, company, role, instructions });
 export const chatAI = (data) => api.post('/ai/chat', data);
-export const generatePdf = (html, docType, applicationId) =>
-  api.post('/ai/generate-pdf', { html, doc_type: docType, application_id: applicationId });
+export const generatePdf = (html, docType, applicationId, templateId) =>
+  api.post('/ai/generate-pdf', { html, doc_type: docType, application_id: applicationId, template_id: templateId });
 export const getDeadlineAlerts = () => api.get('/dashboard/deadline-alerts');

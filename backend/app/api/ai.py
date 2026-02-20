@@ -194,6 +194,38 @@ def tailor_cv():
         return jsonify({'error': {'message': f'Failed to tailor CV: {str(e)}'}}), 500
 
 
+@bp.route('/ai/tailor-cv-template', methods=['POST'])
+def tailor_cv_template():
+    service, error_response, status = _get_gemini_service()
+    if error_response:
+        return error_response, status
+
+    data = request.get_json()
+    job_posting = data.get('job_posting', '').strip()
+    if not job_posting:
+        return jsonify({'error': {'message': 'Job posting text is required'}}), 400
+
+    profile = data.get('profile') or _get_profile_dict()
+    if not profile or not profile.get('full_name'):
+        return jsonify({'error': {'message': 'User profile is required.'}}), 400
+
+    template_config = data.get('template_config', {})
+
+    try:
+        html = service.tailor_cv_with_template(
+            job_posting=job_posting,
+            profile=profile,
+            template_id=template_config.get('template_id', 'classic'),
+            include_photo=template_config.get('include_photo', False),
+            max_pages=template_config.get('max_pages', 1),
+            skills_format=template_config.get('skills_format', 'list'),
+            instructions=data.get('instructions'),
+        )
+        return jsonify({'html': html})
+    except Exception as e:
+        return jsonify({'error': {'message': f'Failed to generate CV: {str(e)}'}}), 500
+
+
 @bp.route('/ai/tailor-cover-letter', methods=['POST'])
 def tailor_cover_letter():
     service, error_response, status = _get_gemini_service()
@@ -326,10 +358,11 @@ def generate_pdf():
 
     doc_type = data.get('doc_type', 'cv')
     application_id = data.get('application_id')
+    template_id = data.get('template_id')
 
     try:
         upload_folder = current_app.config['UPLOAD_FOLDER']
-        filename, filepath, file_size = html_to_pdf(html_content, upload_folder, doc_type)
+        filename, filepath, file_size = html_to_pdf(html_content, upload_folder, doc_type, template_id=template_id)
 
         # Save as document if linked to application
         doc = Document(

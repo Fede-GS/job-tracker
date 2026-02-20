@@ -20,3 +20,6 @@ export const generateFollowup = (applicationId, context) =>
 
 export const generateInterviewPrep = (applicationId) =>
   client.post('/ai/interview-prep', { application_id: applicationId });
+
+export const tailorCvTemplate = (data) =>
+  client.post('/ai/tailor-cv-template', data);

@@ -1,5 +1,5 @@
 .apps-list-page {
-  max-width: 1100px;
+  /* max-width removed - layout handled by app-layout flex + right panel */
 }
 
 .apps-filters {

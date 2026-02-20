@@ -1,8 +1,9 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { ProfileProvider } from './context/ProfileContext';
 import Sidebar from './components/layout/Sidebar';
+import RightPanel from './components/layout/RightPanel';
 import Toast from './components/common/Toast';
 import PageTransition from './components/common/PageTransition';
 import OnboardingGuard from './components/common/OnboardingGuard';
@@ -17,6 +18,18 @@ import JobSearch from './pages/JobSearch';
 import Onboarding from './pages/Onboarding';
 
 function AppLayout() {
+  const location = useLocation();
+
+  const getRightPanelPage = () => {
+    if (location.pathname === '/') return 'dashboard';
+    if (location.pathname === '/applications') return 'applications';
+    if (location.pathname === '/search') return 'jobSearch';
+    if (/^\/applications\/\d+$/.test(location.pathname)) return 'applicationDetail';
+    return null;
+  };
+
+  const rightPanelPage = getRightPanelPage();
+
   return (
     <OnboardingGuard>
       <div className="app-layout">
@@ -26,6 +39,7 @@ function AppLayout() {
             <Outlet />
           </PageTransition>
         </main>
+        {rightPanelPage && <RightPanel page={rightPanelPage} />}
         <Toast />
       </div>
     </OnboardingGuard>

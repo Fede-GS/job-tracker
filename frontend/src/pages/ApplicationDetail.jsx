@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getApplication, updateApplication, deleteApplication, changeStatus } from '../api/applications';
 import { uploadDocument, deleteDocument } from '../api/documents';
 import { createReminder, dismissReminder, deleteReminder } from '../api/reminders';
-import { summarizeApplication, generateInterviewPrep } from '../api/ai';
+import { summarizeApplication, generateInterviewPrep, tailorCvTemplate } from '../api/ai';
 import { generatePdf } from '../api/profile';
 import { useNotification } from '../context/NotificationContext';
 import ApplicationForm from '../components/applications/ApplicationForm';
@@ -38,6 +38,7 @@ export default function ApplicationDetail() {
   const [showReminder, setShowReminder] = useState(false);
   const [reminderForm, setReminderForm] = useState({ remind_at: '', message: '' });
   const [editing, setEditing] = useState(false);
+  const [showOriginalPosting, setShowOriginalPosting] = useState(false);
 
   // Tab system
   const [activeTab, setActiveTab] = useState('overview');
@@ -50,6 +51,13 @@ export default function ApplicationDetail() {
   const [clEditing, setClEditing] = useState(false);
   const [editedClHtml, setEditedClHtml] = useState('');
   const [exportingPdf, setExportingPdf] = useState(false);
+
+  // CV template config state
+  const [templateId, setTemplateId] = useState('classic');
+  const [includePhoto, setIncludePhoto] = useState(false);
+  const [maxPages, setMaxPages] = useState(1);
+  const [skillsFormat, setSkillsFormat] = useState('list');
+  const [generatingCv, setGeneratingCv] = useState(false);
 
   // Interview Prep state
   const [interviewPrep, setInterviewPrep] = useState(null);
@@ -129,7 +137,7 @@ export default function ApplicationDetail() {
       addNotification(t('common.success'), 'success');
       fetchApp();
     } catch (err) {
-      addNotification(t('common.error'), 'error');
+      addNotification(err.message || t('common.error'), 'error');
     } finally {
       setUploading(false);
     }
@@ -184,13 +192,39 @@ export default function ApplicationDetail() {
   const handleExportPdf = async (html, docType) => {
     setExportingPdf(true);
     try {
-      await generatePdf(html, docType, id);
+      await generatePdf(html, docType, id, templateId);
       addNotification(t('common.success'), 'success');
       fetchApp();
     } catch (err) {
       addNotification(err.message, 'error');
     } finally {
       setExportingPdf(false);
+    }
+  };
+
+  const handleGenerateTemplatedCv = async () => {
+    if (!app.job_posting_text) {
+      addNotification(t('applicationDetail.noJobPosting'), 'error');
+      return;
+    }
+    setGeneratingCv(true);
+    try {
+      const { html } = await tailorCvTemplate({
+        job_posting: app.job_posting_text,
+        template_config: {
+          template_id: templateId,
+          include_photo: includePhoto,
+          max_pages: maxPages,
+          skills_format: skillsFormat,
+        },
+      });
+      const { application } = await updateApplication(id, { generated_cv_html: html });
+      setApp((prev) => ({ ...prev, ...application }));
+      addNotification(t('common.success'), 'success');
+    } catch (err) {
+      addNotification(err.message || t('common.error'), 'error');
+    } finally {
+      setGeneratingCv(false);
     }
   };
 
@@ -297,6 +331,14 @@ export default function ApplicationDetail() {
                   <div className="info-item"><span className="info-label">Link</span><a href={app.url} target="_blank" rel="noopener noreferrer">↗</a></div>
                 )}
               </div>
+
+              {/* View original posting button */}
+              {app.job_posting_text && (
+                <button className="btn btn-secondary btn-original-posting" onClick={() => setShowOriginalPosting(true)}>
+                  <span className="material-icon">description</span>
+                  {t('applicationDetail.viewOriginalPosting')}
+                </button>
+              )}
 
               {/* Notes and description */}
               {(app.job_description || app.notes) && (
@@ -428,6 +470,72 @@ export default function ApplicationDetail() {
               </div>
 
               {cvMode === 'generated' ? (
+                <>
+                <div className="card detail-section cv-template-panel">
+                  <h3>{t('applicationDetail.cvTemplateTitle')}</h3>
+                  <div className="cv-template-grid">
+                    {[
+                      { id: 'classic', icon: 'article', label: t('applicationDetail.templateClassic'), desc: t('applicationDetail.templateClassicDesc') },
+                      { id: 'modern', icon: 'view_sidebar', label: t('applicationDetail.templateModern'), desc: t('applicationDetail.templateModernDesc') },
+                      { id: 'creative', icon: 'palette', label: t('applicationDetail.templateCreative'), desc: t('applicationDetail.templateCreativeDesc') },
+                      { id: 'minimal', icon: 'space_dashboard', label: t('applicationDetail.templateMinimal'), desc: t('applicationDetail.templateMinimalDesc') },
+                    ].map((tmpl) => (
+                      <button
+                        key={tmpl.id}
+                        className={`cv-template-card ${templateId === tmpl.id ? 'active' : ''}`}
+                        onClick={() => setTemplateId(tmpl.id)}
+                      >
+                        <span className="material-icon">{tmpl.icon}</span>
+                        <span className="cv-template-name">{tmpl.label}</span>
+                        <span className="cv-template-desc">{tmpl.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="cv-options-row">
+                    <label className="cv-option-check">
+                      <input type="checkbox" checked={includePhoto} onChange={(e) => setIncludePhoto(e.target.checked)} />
+                      <span>{t('applicationDetail.includePhoto')}</span>
+                    </label>
+
+                    <div className="cv-toggle-group">
+                      <span className="cv-toggle-label">{t('applicationDetail.maxPages')}</span>
+                      <button className={`cv-toggle-btn ${maxPages === 1 ? 'active' : ''}`} onClick={() => setMaxPages(1)}>
+                        {t('applicationDetail.onePage')}
+                      </button>
+                      <button className={`cv-toggle-btn ${maxPages === 2 ? 'active' : ''}`} onClick={() => setMaxPages(2)}>
+                        {t('applicationDetail.twoPages')}
+                      </button>
+                    </div>
+
+                    <div className="cv-toggle-group">
+                      <span className="cv-toggle-label">{t('applicationDetail.skillsFormat')}</span>
+                      <button className={`cv-toggle-btn ${skillsFormat === 'tags' ? 'active' : ''}`} onClick={() => setSkillsFormat('tags')}>
+                        {t('applicationDetail.skillsTags')}
+                      </button>
+                      <button className={`cv-toggle-btn ${skillsFormat === 'bars' ? 'active' : ''}`} onClick={() => setSkillsFormat('bars')}>
+                        {t('applicationDetail.skillsBars')}
+                      </button>
+                      <button className={`cv-toggle-btn ${skillsFormat === 'list' ? 'active' : ''}`} onClick={() => setSkillsFormat('list')}>
+                        {t('applicationDetail.skillsList')}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleGenerateTemplatedCv}
+                    disabled={generatingCv || !app.job_posting_text}
+                    style={{ marginTop: 16 }}
+                  >
+                    {generatingCv ? (
+                      <><span className="spinner" /> {t('common.generating')}</>
+                    ) : (
+                      <><span className="material-icon" style={{ fontSize: 18 }}>auto_awesome</span> {t('applicationDetail.generateWithTemplate')}</>
+                    )}
+                  </button>
+                </div>
+
                 <div className="card detail-section">
                   <h3>{t('applicationDetail.generatedCV')}</h3>
                   {app.generated_cv_html ? (
@@ -465,6 +573,7 @@ export default function ApplicationDetail() {
                     <p className="generated-doc-empty">{t('applicationDetail.noGeneratedCV')}</p>
                   )}
                 </div>
+                </>
               ) : (
                 <div className="card detail-section">
                   <FileUpload onUpload={handleUpload} loading={uploading} fixedCategory="cv" />
@@ -720,6 +829,11 @@ export default function ApplicationDetail() {
             <button type="submit" className="btn btn-primary">{t('common.save')}</button>
           </div>
         </form>
+      </Modal>
+
+      {/* Original posting modal */}
+      <Modal isOpen={showOriginalPosting} onClose={() => setShowOriginalPosting(false)} title={t('applicationDetail.viewOriginalPosting')}>
+        <div className="job-posting-text">{app?.job_posting_text}</div>
       </Modal>
     </div>
   );

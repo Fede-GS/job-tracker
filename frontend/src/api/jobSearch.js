@@ -8,3 +8,6 @@ export const analyzeJobMatch = (data) =>
 
 export const saveJobApplication = (data) =>
   client.post('/job-search/save-application', data);
+
+export const getSmartSuggestions = () =>
+  client.get('/job-search/smart-suggestions');

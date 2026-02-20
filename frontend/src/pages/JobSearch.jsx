@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
-import { searchJobs, analyzeJobMatch, saveJobApplication } from '../api/jobSearch';
+import { searchJobs, analyzeJobMatch, saveJobApplication, getSmartSuggestions } from '../api/jobSearch';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/common/Modal';
 import './JobSearch.css';
@@ -46,6 +46,10 @@ export default function JobSearch() {
 
   // API not configured state
   const [apiNotConfigured, setApiNotConfigured] = useState(false);
+
+  // Smart suggestions state
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState(null);
 
   const handleSearch = async (targetPage = 1) => {
     if (!query.trim()) return;
@@ -114,6 +118,30 @@ export default function JobSearch() {
     }
   };
 
+  const handleSmartSearch = async () => {
+    setLoadingSuggestions(true);
+    try {
+      const data = await getSmartSuggestions();
+      setSuggestions(data.suggestions || []);
+      if (data.profile_location) setLocation(data.profile_location);
+    } catch (err) {
+      if (err.status === 422) {
+        setApiNotConfigured(true);
+      } else {
+        addNotification(err.message || t('common.error'), 'error');
+      }
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  const useSuggestion = (suggestion) => {
+    setQuery(suggestion.query);
+    if (suggestion.location) setLocation(suggestion.location);
+    setSuggestions(null);
+    setTimeout(() => handleSearch(1), 100);
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -160,7 +188,33 @@ export default function JobSearch() {
         <button className="btn btn-primary" onClick={() => handleSearch(1)} disabled={loading || !query.trim()}>
           {loading ? <><span className="spinner" /> {t('jobSearch.searching')}</> : t('jobSearch.search')}
         </button>
+        <button
+          className="btn btn-secondary btn-smart-search"
+          onClick={handleSmartSearch}
+          disabled={loadingSuggestions}
+          title={t('jobSearch.smartSearchTooltip')}
+        >
+          {loadingSuggestions
+            ? <><span className="spinner" /></>
+            : <><span className="material-icon">auto_awesome</span> {t('jobSearch.smartSearch')}</>
+          }
+        </button>
       </div>
+
+      {/* Smart suggestions */}
+      {suggestions && suggestions.length > 0 && (
+        <div className="smart-suggestions">
+          <span className="smart-suggestions-label">{t('jobSearch.suggestedSearches')}</span>
+          <div className="smart-suggestions-chips">
+            {suggestions.map((s, i) => (
+              <button key={i} className="suggestion-chip" onClick={() => useSuggestion(s)}>
+                <span className="material-icon">search</span>
+                {s.query}{s.location ? ` — ${s.location}` : ''}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* API not configured */}
       {apiNotConfigured && (

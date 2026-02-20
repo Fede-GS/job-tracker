@@ -1,5 +1,5 @@
 .dashboard {
-  max-width: 1100px;
+  /* max-width removed - layout handled by app-layout flex + right panel */
 }
 
 
@@ -98,6 +98,209 @@
   background: var(--gradient-accent);
   border-radius: 2px;
   flex-shrink: 0;
+}
+
+/* ── Chart Header with Toggle ── */
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.chart-header h3 {
+  margin-bottom: 0;
+}
+
+.timeline-toggle {
+  display: flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2px;
+  gap: 2px;
+}
+
+.timeline-toggle-btn {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  white-space: nowrap;
+}
+
+.timeline-toggle-btn:hover:not(.active):not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.timeline-toggle-btn.active {
+  background: var(--gradient-accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.timeline-toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 280px;
+}
+
+.timeline-chart-card {
+  cursor: pointer;
+}
+
+/* ── Timeline Custom Tooltip ── */
+.timeline-tooltip {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  box-shadow: var(--shadow-lg);
+  min-width: 160px;
+}
+
+.timeline-tooltip-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.timeline-tooltip-row {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.timeline-tooltip-row strong {
+  color: var(--text-primary);
+}
+
+.timeline-tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.timeline-tooltip-hint {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ── Timeline Click Popup (floating card) ── */
+.timeline-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+.timeline-popup {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 420px;
+  max-width: 90vw;
+  max-height: 70vh;
+  overflow: hidden;
+  animation: fadeInUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.timeline-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.timeline-popup-header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.timeline-popup-list {
+  padding: 8px;
+  overflow-y: auto;
+  max-height: calc(70vh - 60px);
+}
+
+.timeline-popup-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background var(--transition-smooth);
+}
+
+.timeline-popup-item:hover {
+  background: var(--bg-hover);
+}
+
+.timeline-popup-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.timeline-popup-role {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeline-popup-company {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.timeline-popup-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.timeline-popup-score {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .recent-list {

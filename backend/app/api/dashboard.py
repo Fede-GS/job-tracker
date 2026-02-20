@@ -54,22 +54,118 @@ def get_stats():
 @bp.route('/dashboard/timeline', methods=['GET'])
 def get_timeline():
     period = request.args.get('period', 'monthly')
-    months_back = 12 if period == 'monthly' else 3
+    today = date.today()
 
-    cutoff = date.today() - timedelta(days=months_back * 30)
-    apps = Application.query.filter(Application.applied_date >= cutoff).all()
+    DAY_NAMES_IT = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
 
-    data = {}
-    for app in apps:
-        if period == 'monthly':
-            key = app.applied_date.strftime('%Y-%m')
-        else:
-            iso = app.applied_date.isocalendar()
-            key = f"{iso[0]}-W{iso[1]:02d}"
-        data[key] = data.get(key, 0) + 1
+    if period == 'weekly':
+        # Current week: Mon-Sun with each day's applications
+        start_of_week = today - timedelta(days=today.weekday())
+        apps = Application.query.filter(
+            Application.applied_date >= start_of_week,
+            Application.applied_date <= today,
+        ).all()
 
-    timeline = [{'date': k, 'count': v} for k, v in sorted(data.items())]
-    return jsonify({'data': timeline})
+        # Group apps by date
+        apps_by_date = {}
+        for a in apps:
+            key = a.applied_date.isoformat()
+            if key not in apps_by_date:
+                apps_by_date[key] = []
+            apps_by_date[key].append({
+                'id': a.id, 'company': a.company, 'role': a.role,
+                'status': a.status, 'match_score': a.match_score,
+            })
+
+        timeline = []
+        for i in range(7):
+            d = start_of_week + timedelta(days=i)
+            key = d.isoformat()
+            day_apps = apps_by_date.get(key, [])
+            timeline.append({
+                'date': DAY_NAMES_IT[i],
+                'count': len(day_apps),
+                'applications': day_apps,
+                'full_date': d.strftime('%d/%m/%Y'),
+            })
+
+        return jsonify({'data': timeline})
+
+    elif period == 'daily':
+        # Last 30 days cumulative with application details
+        cutoff = today - timedelta(days=29)
+        apps = Application.query.filter(
+            Application.applied_date >= cutoff
+        ).order_by(Application.applied_date.asc()).all()
+
+        # Group apps by date
+        apps_by_date = {}
+        for a in apps:
+            key = a.applied_date.isoformat()
+            if key not in apps_by_date:
+                apps_by_date[key] = []
+            apps_by_date[key].append({
+                'id': a.id, 'company': a.company, 'role': a.role,
+                'status': a.status, 'match_score': a.match_score,
+            })
+
+        timeline = []
+        cumulative = 0
+        for i in range(30):
+            d = cutoff + timedelta(days=i)
+            key = d.isoformat()
+            day_apps = apps_by_date.get(key, [])
+            day_count = len(day_apps)
+            cumulative += day_count
+            timeline.append({
+                'date': d.strftime('%d/%m'),
+                'count': day_count,
+                'cumulative': cumulative,
+                'applications': day_apps,
+                'full_date': d.strftime('%d/%m/%Y'),
+            })
+
+        return jsonify({'data': timeline})
+
+    else:
+        # Monthly: last 12 months
+        cutoff = today - timedelta(days=365)
+        apps = Application.query.filter(
+            Application.applied_date >= cutoff
+        ).all()
+
+        apps_by_month = {}
+        for a in apps:
+            key = a.applied_date.strftime('%Y-%m')
+            if key not in apps_by_month:
+                apps_by_month[key] = []
+            apps_by_month[key].append({
+                'id': a.id, 'company': a.company, 'role': a.role,
+                'status': a.status, 'match_score': a.match_score,
+            })
+
+        # Fill all months
+        timeline = []
+        for i in range(12):
+            d = today.replace(day=1) - timedelta(days=30 * (11 - i))
+            key = d.strftime('%Y-%m')
+            month_apps = apps_by_month.get(key, [])
+            timeline.append({
+                'date': key,
+                'count': len(month_apps),
+                'applications': month_apps,
+            })
+
+        # Deduplicate and sort
+        seen = set()
+        unique_timeline = []
+        for entry in timeline:
+            if entry['date'] not in seen:
+                seen.add(entry['date'])
+                unique_timeline.append(entry)
+        unique_timeline.sort(key=lambda x: x['date'])
+
+        return jsonify({'data': unique_timeline})
 
 
 @bp.route('/dashboard/recent', methods=['GET'])

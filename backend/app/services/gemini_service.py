@@ -10,6 +10,7 @@ from ..utils.prompts import (
     EXTRACT_CV_PROFILE_PROMPT,
     MATCH_ANALYSIS_PROMPT,
     TAILOR_CV_HTML_PROMPT,
+    TAILOR_CV_WITH_TEMPLATE_PROMPT,
     GENERATE_COVER_LETTER_HTML_PROMPT,
     CHAT_PROMPT,
     GENERATE_FOLLOWUP_PROMPT,
@@ -141,6 +142,38 @@ class GeminiService:
         )
         result = self._generate(prompt)
         # Strip any markdown code fences
+        cleaned = re.sub(r'```(?:html)?\s*', '', result)
+        cleaned = cleaned.strip().rstrip('`')
+        return cleaned
+
+    def tailor_cv_with_template(self, job_posting, profile, template_id='classic',
+                                include_photo=False, max_pages=1, skills_format='list',
+                                instructions=None):
+        instructions_section = ""
+        if instructions:
+            instructions_section = f"Additional instructions: {instructions}"
+
+        prompt = TAILOR_CV_WITH_TEMPLATE_PROMPT.format(
+            full_name=profile.get('full_name', ''),
+            email=profile.get('email', ''),
+            phone=profile.get('phone', ''),
+            location=profile.get('location', ''),
+            linkedin_url=profile.get('linkedin_url', ''),
+            portfolio_url=profile.get('portfolio_url', ''),
+            professional_summary=profile.get('professional_summary', ''),
+            work_experiences=json.dumps(profile.get('work_experiences', []), ensure_ascii=False),
+            education=json.dumps(profile.get('education', []), ensure_ascii=False),
+            skills=json.dumps(profile.get('skills', []), ensure_ascii=False),
+            languages=json.dumps(profile.get('languages', []), ensure_ascii=False),
+            certifications=json.dumps(profile.get('certifications', []), ensure_ascii=False),
+            job_posting=job_posting,
+            template_id=template_id,
+            include_photo=str(include_photo).lower(),
+            max_pages=max_pages,
+            skills_format=skills_format,
+            instructions_section=instructions_section,
+        )
+        result = self._generate(prompt)
         cleaned = re.sub(r'```(?:html)?\s*', '', result)
         cleaned = cleaned.strip().rstrip('`')
         return cleaned

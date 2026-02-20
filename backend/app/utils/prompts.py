@@ -316,6 +316,66 @@ Generate a detailed interview preparation guide. Return your response as a valid
 Write in the same language as the job posting.
 Only return the JSON object, no additional text or markdown code fences."""
 
+TAILOR_CV_WITH_TEMPLATE_PROMPT = """You are an expert CV writer. Generate a professional CV tailored to the job posting, using the candidate's profile data and following a specific template layout.
+
+Candidate Profile:
+---
+Name: {full_name}
+Email: {email}
+Phone: {phone}
+Location: {location}
+LinkedIn: {linkedin_url}
+Portfolio: {portfolio_url}
+Summary: {professional_summary}
+Experience: {work_experiences}
+Education: {education}
+Skills: {skills}
+Languages: {languages}
+Certifications: {certifications}
+---
+
+Job Posting:
+---
+{job_posting}
+---
+
+Template: {template_id}
+Include Photo Placeholder: {include_photo}
+Maximum Pages: {max_pages}
+Skills Format: {skills_format}
+
+{instructions_section}
+
+Generate the CV in clean HTML format following these template-specific rules:
+
+TEMPLATE RULES:
+- "classic": Traditional single-column layout. Use <h1> for name, horizontal <hr> lines between sections, serif-style presentation. Sections flow top to bottom: Header, Summary, Experience, Education, Skills, Languages, Certifications.
+
+- "modern": Two-column layout using a wrapper <div>. Left column (30% width, inline style background-color:#6366f1; color:white; padding:20px) contains: contact info, skills, languages, certifications. Right column (70% width, padding:20px) contains: name, summary, experience, education. Use a <div style="display:flex"> wrapper.
+
+- "creative": Bold header section with the candidate name in large text and an accent stripe (<div style="background-color:#6366f1; height:4px; width:60px; margin:8px 0 16px"></div>). Use card-style sections wrapped in <div style="border:1px solid #e5e7eb; border-radius:8px; padding:16px; margin-bottom:12px">. Use unicode check marks for bullet points.
+
+- "minimal": Ultra-clean layout. Lots of whitespace. Thin <hr style="border:none; border-top:1px solid #eee; margin:16px 0"> lines between sections. Sans-serif throughout. Compact but readable. Name in regular weight, not bold.
+
+SKILLS FORMAT RULES:
+- "tags": Present skills as inline <span style="display:inline-block; padding:4px 12px; background:#f0f0ff; border-radius:12px; margin:3px; font-size:13px"> elements
+- "bars": Present each skill as text followed by a visual bar using <div style="background:#e5e7eb; border-radius:4px; height:8px; margin-top:2px"><div style="background:#6366f1; height:8px; border-radius:4px; width:XX%"></div></div> (estimate proficiency from context)
+- "list": Present skills as a simple <ul> bullet list
+
+PHOTO PLACEHOLDER:
+- If include_photo is "true", add a placeholder <div style="width:80px; height:80px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; font-size:12px; color:#999; margin-bottom:12px">Photo</div> at the top of the CV.
+
+PAGE LENGTH:
+- If max_pages is 1, be very concise: limit experience to 2-3 most relevant roles, limit bullets to 2-3 per role, brief summary
+- If max_pages is 2, include more detail: all relevant experience, more bullets, fuller descriptions
+
+Guidelines:
+- Tailor content to emphasize relevant experience for this specific job
+- Use the candidate's real data, do NOT fabricate information
+- Write in the same language as the job posting
+- Return ONLY the HTML content, no markdown, no code fences
+- Use inline styles where needed for template-specific layout"""
+
 CHAT_PROMPT = """You are a helpful career advisor AI assistant. The user is working on a job application.
 
 Context:

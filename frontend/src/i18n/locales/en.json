@@ -51,6 +51,12 @@
     "avgMatchScore": "Avg Match Score",
     "byStatus": "By Status",
     "timeline": "Timeline",
+    "period_daily": "Day",
+    "period_weekly": "Week",
+    "period_monthly": "Month",
+    "applications": "Applications",
+    "cumulative": "Total",
+    "clickToSee": "Click to see applications",
     "recentApplications": "Recent Applications",
     "recentChanges": "Recent Activity",
     "noApplications": "No applications yet",
@@ -219,6 +225,7 @@
     "tabCoverLetter": "Cover Letter",
     "tabTimeline": "Timeline",
     "jobPostingOriginal": "Original Job Posting",
+    "viewOriginalPosting": "View Original Posting",
     "matchAnalysis": "Match Analysis",
     "strengths": "Strengths",
     "gaps": "Areas for Improvement",
@@ -256,7 +263,26 @@
     "tipCategoryCulture": "Culture",
     "tipCategoryIndustry": "Industry",
     "tipCategoryRecentNews": "Recent News",
-    "tipCategoryPreparation": "Preparation"
+    "tipCategoryPreparation": "Preparation",
+    "cvTemplateTitle": "CV Template",
+    "templateClassic": "Classic",
+    "templateModern": "Modern",
+    "templateCreative": "Creative",
+    "templateMinimal": "Minimal",
+    "templateClassicDesc": "Traditional layout, serif",
+    "templateModernDesc": "Two columns with sidebar",
+    "templateCreativeDesc": "Bold header, card style",
+    "templateMinimalDesc": "Clean, plenty of space",
+    "includePhoto": "Photo placeholder",
+    "maxPages": "Pages:",
+    "onePage": "1",
+    "twoPages": "2",
+    "skillsFormat": "Skills:",
+    "skillsTags": "Tags",
+    "skillsBars": "Bars",
+    "skillsList": "List",
+    "generateWithTemplate": "Generate CV",
+    "cvOptions": "CV Options"
   },
   "documents": {
     "dragDrop": "Drag a file here or",
@@ -336,7 +362,10 @@
     "closeAnalysis": "Close",
     "configureApi": "Configure Adzuna API",
     "configureApiDesc": "To search for jobs, register for free at developer.adzuna.com and enter your credentials in Settings.",
-    "goToSettings": "Go to Settings"
+    "goToSettings": "Go to Settings",
+    "smartSearch": "Smart Search",
+    "smartSearchTooltip": "Find offers based on your profile",
+    "suggestedSearches": "Suggested searches:"
   },
   "milestones": {
     "first": "First Step!",
@@ -375,5 +404,21 @@
     "adzunaApiDesc": "Register for free at developer.adzuna.com to get your credentials",
     "adzunaAppId": "App ID",
     "adzunaApiKey": "API Key"
+  },
+  "rightPanel": {
+    "quickActions": "Quick Actions",
+    "newApplication": "New Application",
+    "searchJobs": "Search Jobs",
+    "editProfile": "Edit Profile",
+    "reminders": "Upcoming Reminders",
+    "statistics": "Statistics",
+    "total": "Total",
+    "interviews": "Interviews",
+    "responseRate": "Rate",
+    "searchTips": "Search Tips",
+    "tip1": "Use specific job titles for better results",
+    "tip2": "Try the Smart Search to get AI-powered suggestions",
+    "tip3": "Analyze your match score before applying",
+    "aiActions": "AI Actions"
   }
 }

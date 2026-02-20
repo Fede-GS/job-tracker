@@ -51,6 +51,12 @@
     "avgMatchScore": "Match Score Medio",
     "byStatus": "Per Stato",
     "timeline": "Timeline",
+    "period_daily": "Giorno",
+    "period_weekly": "Settimana",
+    "period_monthly": "Mese",
+    "applications": "Candidature",
+    "cumulative": "Totale",
+    "clickToSee": "Clicca per vedere le candidature",
     "recentApplications": "Candidature Recenti",
     "recentChanges": "Attività Recente",
     "noApplications": "Nessuna candidatura ancora",
@@ -219,6 +225,7 @@
     "tabCoverLetter": "Lettera",
     "tabTimeline": "Cronologia",
     "jobPostingOriginal": "Annuncio Originale",
+    "viewOriginalPosting": "Vedi Annuncio Originale",
     "matchAnalysis": "Analisi Compatibilità",
     "strengths": "Punti di Forza",
     "gaps": "Aree di Miglioramento",
@@ -256,7 +263,26 @@
     "tipCategoryCulture": "Cultura",
     "tipCategoryIndustry": "Settore",
     "tipCategoryRecentNews": "News Recenti",
-    "tipCategoryPreparation": "Preparazione"
+    "tipCategoryPreparation": "Preparazione",
+    "cvTemplateTitle": "Template CV",
+    "templateClassic": "Classico",
+    "templateModern": "Moderno",
+    "templateCreative": "Creativo",
+    "templateMinimal": "Minimale",
+    "templateClassicDesc": "Layout tradizionale, serif",
+    "templateModernDesc": "Due colonne con sidebar",
+    "templateCreativeDesc": "Header bold, card style",
+    "templateMinimalDesc": "Pulito, tanto spazio",
+    "includePhoto": "Placeholder foto",
+    "maxPages": "Pagine:",
+    "onePage": "1",
+    "twoPages": "2",
+    "skillsFormat": "Skills:",
+    "skillsTags": "Tag",
+    "skillsBars": "Barre",
+    "skillsList": "Lista",
+    "generateWithTemplate": "Genera CV",
+    "cvOptions": "Opzioni CV"
   },
   "documents": {
     "dragDrop": "Trascina un file qui o",
@@ -336,7 +362,10 @@
     "closeAnalysis": "Chiudi",
     "configureApi": "Configura API Adzuna",
     "configureApiDesc": "Per cercare lavori, registrati gratuitamente su developer.adzuna.com e inserisci le credenziali nelle Impostazioni.",
-    "goToSettings": "Vai alle Impostazioni"
+    "goToSettings": "Vai alle Impostazioni",
+    "smartSearch": "Ricerca Smart",
+    "smartSearchTooltip": "Trova offerte basate sul tuo profilo",
+    "suggestedSearches": "Ricerche suggerite:"
   },
   "milestones": {
     "first": "Primo Passo!",
@@ -375,5 +404,21 @@
     "adzunaApiDesc": "Registrati gratuitamente su developer.adzuna.com per ottenere le credenziali",
     "adzunaAppId": "App ID",
     "adzunaApiKey": "API Key"
+  },
+  "rightPanel": {
+    "quickActions": "Azioni Rapide",
+    "newApplication": "Nuova Candidatura",
+    "searchJobs": "Cerca Lavoro",
+    "editProfile": "Modifica Profilo",
+    "reminders": "Promemoria in Arrivo",
+    "statistics": "Statistiche",
+    "total": "Totale",
+    "interviews": "Colloqui",
+    "responseRate": "Tasso",
+    "searchTips": "Consigli di Ricerca",
+    "tip1": "Usa titoli specifici per risultati migliori",
+    "tip2": "Prova la Ricerca Smart per suggerimenti basati su AI",
+    "tip3": "Analizza il tuo match score prima di candidarti",
+    "aiActions": "Azioni AI"
   }
 }

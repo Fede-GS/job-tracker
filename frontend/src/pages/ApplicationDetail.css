@@ -92,8 +92,8 @@
 
 /* ── Sections ── */
 .detail-sections {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   margin-bottom: 16px;
 }
@@ -444,6 +444,18 @@
   border-left: 3px solid var(--warning);
 }
 
+/* ── View original posting button ── */
+.btn-original-posting {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.btn-original-posting .material-icon {
+  font-size: 18px;
+}
+
 /* ── Job posting text ── */
 .job-posting-text {
   font-size: 13px;
@@ -726,6 +738,121 @@
   transform: translateX(2px);
 }
 
+/* ── CV Template Panel ── */
+.cv-template-panel {
+  border: 1px solid var(--accent-light);
+}
+
+.cv-template-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.cv-template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 10px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.cv-template-card:hover {
+  border-color: var(--accent-light);
+  background: var(--bg-card);
+}
+
+.cv-template-card.active {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.06);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.cv-template-card .material-icon {
+  font-size: 28px;
+  color: var(--accent);
+}
+
+.cv-template-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cv-template-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.cv-options-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.cv-option-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.cv-option-check input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+
+.cv-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cv-toggle-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+.cv-toggle-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cv-toggle-btn:hover {
+  border-color: var(--accent-light);
+  color: var(--text-primary);
+}
+
+.cv-toggle-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
 /* ── Loading state ── */
 .app-detail-loading {
   display: flex;
@@ -768,5 +895,13 @@
   }
   .star-grid {
     grid-template-columns: 1fr;
+  }
+  .cv-template-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .cv-options-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 }

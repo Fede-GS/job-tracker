@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PieChart, Pie, Cell, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, AreaChart, Area, BarChart, Bar, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { getStats, getTimeline, getRecent, getDeadlineAlerts, getFunnel, getFollowupSuggestions } from '../api/dashboard';
 import { generateFollowup } from '../api/ai';
 import { STATUS_CONFIG } from '../components/applications/StatusBadge';
@@ -32,11 +32,14 @@ export default function Dashboard() {
   const [followupModal, setFollowupModal] = useState(null);
   const [generatingFollowup, setGeneratingFollowup] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [timelinePeriod, setTimelinePeriod] = useState('daily');
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelinePopup, setTimelinePopup] = useState(null);
 
   useEffect(() => {
     Promise.all([
       getStats(),
-      getTimeline(),
+      getTimeline('daily'),
       getRecent(),
       getDeadlineAlerts().catch(() => ({ upcoming: [], overdue: [] })),
       getFunnel().catch(() => null),
@@ -53,6 +56,19 @@ export default function Dashboard() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const handleTimelinePeriod = async (period) => {
+    setTimelinePeriod(period);
+    setTimelineLoading(true);
+    try {
+      const data = await getTimeline(period);
+      setTimeline(data.data || []);
+    } catch {
+      // keep old data
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
 
   const handleGenerateFollowup = async (suggestion) => {
     setGeneratingFollowup(suggestion.application.id);
@@ -209,21 +225,92 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="card chart-card">
-          <h3>{t('dashboard.timeline')}</h3>
-          {timeline.length > 0 ? (
+        <div className="card chart-card timeline-chart-card">
+          <div className="chart-header">
+            <h3>{t('dashboard.timeline')}</h3>
+            <div className="timeline-toggle">
+              {['daily', 'weekly', 'monthly'].map((p) => (
+                <button
+                  key={p}
+                  className={`timeline-toggle-btn ${timelinePeriod === p ? 'active' : ''}`}
+                  onClick={() => handleTimelinePeriod(p)}
+                  disabled={timelineLoading}
+                >
+                  {t(`dashboard.period_${p}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+          {timelineLoading ? (
+            <div className="chart-loading"><span className="spinner" /></div>
+          ) : timeline.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={timeline}>
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+              <ComposedChart data={timeline}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} interval={timelinePeriod === 'daily' ? 4 : 0} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Area type="monotone" dataKey="count" stroke="#6366f1" fill="#6366f1" fillOpacity={0.15} strokeWidth={2} />
-              </AreaChart>
+                <Tooltip content={({ active, payload: tp }) => {
+                  if (!active || !tp || !tp.length) return null;
+                  const d = tp[0].payload;
+                  return (
+                    <div className="timeline-tooltip">
+                      <div className="timeline-tooltip-header">{d.full_date || d.date}</div>
+                      <div className="timeline-tooltip-row">
+                        <span className="timeline-tooltip-dot" style={{ background: '#8b5cf6' }} />
+                        {t('dashboard.applications')}: <strong>{d.count}</strong>
+                      </div>
+                      {timelinePeriod === 'daily' && d.cumulative != null && (
+                        <div className="timeline-tooltip-row">
+                          <span className="timeline-tooltip-dot" style={{ background: '#f59e0b' }} />
+                          {t('dashboard.cumulative')}: <strong>{d.cumulative}</strong>
+                        </div>
+                      )}
+                      {d.applications && d.applications.length > 0 && (
+                        <div className="timeline-tooltip-hint">{t('dashboard.clickToSee')}</div>
+                      )}
+                    </div>
+                  );
+                }} />
+                <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={timelinePeriod === 'daily' ? 8 : timelinePeriod === 'weekly' ? 28 : 20} fillOpacity={0.85} cursor="pointer" onClick={(data) => {
+                  if (data && data.applications && data.applications.length > 0) {
+                    setTimelinePopup(data);
+                  }
+                }} />
+                {timelinePeriod === 'daily' && (
+                  <Line type="monotone" dataKey="cumulative" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                )}
+              </ComposedChart>
             </ResponsiveContainer>
           ) : (
             <div className="empty-state"><p>{t('common.noResults')}</p></div>
           )}
         </div>
+
+        {/* Timeline click popup */}
+        {timelinePopup && (
+          <div className="timeline-popup-overlay" onClick={() => setTimelinePopup(null)}>
+            <div className="timeline-popup" onClick={(e) => e.stopPropagation()}>
+              <div className="timeline-popup-header">
+                <h4>{timelinePopup.full_date || timelinePopup.date} — {timelinePopup.count} {t('dashboard.applications').toLowerCase()}</h4>
+                <button className="btn btn-ghost btn-sm" onClick={() => setTimelinePopup(null)}>&times;</button>
+              </div>
+              <div className="timeline-popup-list">
+                {timelinePopup.applications.map((app) => (
+                  <Link key={app.id} to={`/applications/${app.id}`} className="timeline-popup-item" onClick={() => setTimelinePopup(null)}>
+                    <div className="timeline-popup-info">
+                      <span className="timeline-popup-role">{app.role}</span>
+                      <span className="timeline-popup-company">{app.company}</span>
+                    </div>
+                    <div className="timeline-popup-meta">
+                      {app.match_score != null && <span className="timeline-popup-score">{app.match_score}/10</span>}
+                      <StatusBadge status={app.status} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Funnel Analytics */}
