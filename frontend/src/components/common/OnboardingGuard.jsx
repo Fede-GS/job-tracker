@@ -14,10 +14,10 @@ export default function OnboardingGuard({ children }) {
         height: '100vh',
         gap: '16px',
       }}>
-        <div className="logo-icon" style={{
-          width: 48, height: 48, fontSize: 18,
+        <img src="/logo2.png" alt="FinixJob" style={{
+          width: 64, height: 64,
           animation: 'pulseGlow 2s ease infinite',
-        }}>JT</div>
+        }} />
         <span className="spinner" />
       </div>
     );

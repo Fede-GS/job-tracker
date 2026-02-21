@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { getSettings, updateSettings, testApiKey } from '../api/settings';
 import { useNotification } from '../context/NotificationContext';
 import { useTheme } from '../context/ThemeContext';
+import PageTutorial from '../components/common/PageTutorial';
 import './Settings.css';
 
 export default function Settings() {
@@ -71,6 +72,7 @@ export default function Settings() {
 
   return (
     <div className="settings-page">
+      <PageTutorial pageKey="settings" icon="settings" />
       <div className="page-header">
         <h1>{t('settings.title')}</h1>
         <p>{t('settings.subtitle')}</p>

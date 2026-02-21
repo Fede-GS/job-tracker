@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { searchJobs, analyzeJobMatch, saveJobApplication, getSmartSuggestions } from '../api/jobSearch';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/common/Modal';
+import PageTutorial from '../components/common/PageTutorial';
 import './JobSearch.css';
 
 const COUNTRIES = [
@@ -157,6 +158,7 @@ export default function JobSearch() {
 
   return (
     <div className="job-search-page">
+      <PageTutorial pageKey="jobSearch" icon="travel_explore" />
       <div className="page-header">
         <h1>{t('jobSearch.title')}</h1>
         <p>{t('jobSearch.subtitle')}</p>

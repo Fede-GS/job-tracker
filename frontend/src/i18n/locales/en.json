@@ -32,7 +32,8 @@
     "newApplication": "New Application",
     "profile": "Profile",
     "aiAssistant": "AI Assistant",
-    "settings": "Settings"
+    "settings": "Settings",
+    "replayTutorial": "Replay Tutorial"
   },
   "statuses": {
     "draft": "Draft",
@@ -420,5 +421,78 @@
     "tip2": "Try the Smart Search to get AI-powered suggestions",
     "tip3": "Analyze your match score before applying",
     "aiActions": "AI Actions"
+  },
+  "tutorial": {
+    "welcomeTitle": "Welcome to FinixJob!",
+    "welcomeDesc": "Your AI-powered job application tracker. Would you like a quick tour?",
+    "startTour": "Yes, show me around",
+    "skipTour": "Skip for now",
+    "next": "Next",
+    "previous": "Back",
+    "finish": "Get Started",
+    "stepOf": "of",
+    "finishTitle": "You're All Set!",
+    "finishDesc": "Start by adding your first application or searching for jobs. You can replay this tour anytime from the sidebar.",
+    "gotIt": "Got it",
+    "tour": {
+      "dashboard": {
+        "title": "Dashboard",
+        "desc": "Your command center. View stats, response rates, timeline charts, deadline alerts, and follow-up suggestions."
+      },
+      "applications": {
+        "title": "Applications",
+        "desc": "Track all your job applications. Switch between list, calendar, week, and day views."
+      },
+      "jobSearch": {
+        "title": "Job Search",
+        "desc": "Search job listings across 39 countries. Use Smart Search to find offers matching your profile."
+      },
+      "newApplication": {
+        "title": "New Application",
+        "desc": "AI-powered 6-step workflow: paste a job posting, get match analysis, generate a tailored CV and cover letter."
+      },
+      "profile": {
+        "title": "Profile",
+        "desc": "Keep your professional info updated. Upload your CV to enable all AI-powered features."
+      },
+      "aiAssistant": {
+        "title": "AI Assistant",
+        "desc": "Generate CVs, cover letters, and improve your text with AI. Your personal career assistant."
+      },
+      "settings": {
+        "title": "Settings",
+        "desc": "Configure API keys, appearance, language, and other preferences."
+      }
+    },
+    "page": {
+      "dashboard": {
+        "title": "Dashboard Overview",
+        "desc": "Here you can see your application statistics, status distribution, timeline, deadline alerts, and follow-up suggestions. All your data at a glance."
+      },
+      "applications": {
+        "title": "Your Applications",
+        "desc": "View and manage all your job applications. Use the filters to search by company or status, and switch between list, calendar, week, and day views."
+      },
+      "jobSearch": {
+        "title": "Find Jobs",
+        "desc": "Search for jobs across 39 countries using the Adzuna API. Use Smart Search to get AI-powered suggestions based on your profile."
+      },
+      "newApplication": {
+        "title": "Create an Application",
+        "desc": "Follow the 6-step wizard: paste a job posting, analyze your match, decide whether to apply, generate a custom CV and cover letter, then save."
+      },
+      "aiAssistant": {
+        "title": "AI Assistant",
+        "desc": "Use AI to generate CVs, cover letters, or improve any text. Select an application and choose what you'd like to create."
+      },
+      "profile": {
+        "title": "Your Profile",
+        "desc": "Fill in your professional information or upload your CV to auto-extract data. This profile powers all AI features."
+      },
+      "settings": {
+        "title": "Settings",
+        "desc": "Set your Google Gemini API key for AI features, configure the Adzuna API for job search, and choose your preferred language and theme."
+      }
+    }
   }
 }

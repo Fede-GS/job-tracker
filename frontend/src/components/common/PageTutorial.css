@@ -1,0 +1,78 @@
+/* ── Page Tutorial Banner ── */
+.page-tutorial-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.06);
+  animation: pageTipFadeIn 0.4s ease;
+}
+
+[data-theme="dark"] .page-tutorial-banner {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  border-left-color: var(--accent);
+}
+
+.page-tutorial-icon-wrapper {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-tutorial-icon {
+  font-size: 20px !important;
+  color: var(--accent);
+}
+
+.page-tutorial-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-tutorial-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.page-tutorial-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.page-tutorial-dismiss {
+  flex-shrink: 0;
+  align-self: center;
+  white-space: nowrap;
+}
+
+@keyframes pageTipFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .page-tutorial-banner {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .page-tutorial-dismiss {
+    width: 100%;
+  }
+}
