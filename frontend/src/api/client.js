@@ -20,8 +20,8 @@ client.interceptors.response.use(
     const message = error.response?.data?.error?.message || 'Something went wrong';
     const status = error.response?.status;
 
-    // If 401 Unauthorized, clear token and redirect to login
-    if (status === 401) {
+    // If 401 Unauthorized or 422 (invalid/expired JWT), clear token and redirect to login
+    if (status === 401 || status === 422) {
       localStorage.removeItem('auth_token');
       // Don't redirect if already on login/register page
       if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
