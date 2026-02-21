@@ -20,25 +20,13 @@ client.interceptors.response.use(
     const message = error.response?.data?.error?.message || 'Something went wrong';
     const status = error.response?.status;
 
-    // If 401 Unauthorized, redirect to login
+    // 401 = any auth error (invalid/expired/missing token)
+    // Backend JWT error handlers normalize everything to 401
     if (status === 401) {
       localStorage.removeItem('auth_token');
       const path = window.location.pathname;
       if (!path.startsWith('/login') && !path.startsWith('/register')) {
         window.location.href = '/login';
-      }
-    }
-
-    // If 422 with JWT-specific error message, treat as auth failure
-    // But only redirect if we actually had a token (avoid redirect loop on login)
-    if (status === 422 && localStorage.getItem('auth_token')) {
-      const errMsg = error.response?.data?.msg || '';
-      if (errMsg.includes('token') || errMsg.includes('signature') || errMsg.includes('expired')) {
-        localStorage.removeItem('auth_token');
-        const path = window.location.pathname;
-        if (!path.startsWith('/login') && !path.startsWith('/register')) {
-          window.location.href = '/login';
-        }
       }
     }
 

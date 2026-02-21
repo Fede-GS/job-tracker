@@ -1,5 +1,5 @@
 import os
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 from .extensions import db, jwt, migrate
 from .config import Config
@@ -19,12 +19,29 @@ def create_app():
     frontend_url = os.environ.get('FRONTEND_URL')
     if frontend_url:
         allowed_origins.append(frontend_url)
-    CORS(app, origins=allowed_origins)
+    CORS(app, origins=allowed_origins, supports_credentials=True)
 
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
+
+    # JWT error handlers — normalize ALL JWT errors to 401
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error_string):
+        return jsonify({'error': {'message': 'Invalid token'}, 'msg': error_string}), 401
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({'error': {'message': 'Token has expired'}, 'msg': 'Token has expired'}), 401
+
+    @jwt.unauthorized_loader
+    def missing_token_callback(error_string):
+        return jsonify({'error': {'message': 'Missing authorization token'}, 'msg': error_string}), 401
+
+    @jwt.token_verification_failed_loader
+    def token_verification_failed_callback(jwt_header, jwt_payload):
+        return jsonify({'error': {'message': 'Token verification failed'}, 'msg': 'Token verification failed'}), 401
 
     # Register blueprints
     from .api import applications, documents, reminders, ai, dashboard, settings, profile, job_search, auth

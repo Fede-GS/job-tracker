@@ -44,7 +44,7 @@ def register():
     db.session.commit()
 
     # Generate token
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
 
     return jsonify({
         'token': access_token,
@@ -68,7 +68,7 @@ def login():
     if not user.is_active:
         return jsonify({'error': {'message': 'Account is disabled'}}), 403
 
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
 
     return jsonify({
         'token': access_token,
@@ -79,7 +79,7 @@ def login():
 @bp.route('/me', methods=['GET'])
 @jwt_required()
 def me():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': {'message': 'User not found'}}), 404
