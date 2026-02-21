@@ -7,11 +7,9 @@ import Modal from '../components/common/Modal';
 import PageTutorial from '../components/common/PageTutorial';
 import './JobSearch.css';
 
+// Adzuna API supported countries only
 const COUNTRIES = [
-  'it', 'gb', 'de', 'fr', 'es', 'nl', 'at', 'ch', 'be', 'pl',
-  'se', 'no', 'dk', 'fi', 'ie', 'pt', 'cz', 'ro', 'hu', 'bg',
-  'hr', 'sk', 'si', 'lt', 'lv', 'ee', 'lu', 'mt', 'cy', 'gr',
-  'us', 'ca', 'au', 'nz', 'br', 'mx', 'in', 'sg', 'za',
+  'gb', 'us', 'de', 'fr', 'au', 'nz', 'ca', 'in', 'pl', 'br', 'at', 'za',
 ];
 
 const scoreColor = (score) => {
@@ -27,7 +25,7 @@ export default function JobSearch() {
 
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
-  const [country, setCountry] = useState('it');
+  const [country, setCountry] = useState('gb');
   const [jobs, setJobs] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);

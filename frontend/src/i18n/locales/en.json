@@ -316,44 +316,17 @@
     "viewOriginal": "View Posting",
     "country": "Country",
     "countries": {
-      "it": "Italy",
       "gb": "United Kingdom",
+      "us": "United States",
       "de": "Germany",
       "fr": "France",
-      "es": "Spain",
-      "nl": "Netherlands",
-      "at": "Austria",
-      "ch": "Switzerland",
-      "be": "Belgium",
-      "pl": "Poland",
-      "se": "Sweden",
-      "no": "Norway",
-      "dk": "Denmark",
-      "fi": "Finland",
-      "ie": "Ireland",
-      "pt": "Portugal",
-      "cz": "Czech Republic",
-      "ro": "Romania",
-      "hu": "Hungary",
-      "bg": "Bulgaria",
-      "hr": "Croatia",
-      "sk": "Slovakia",
-      "si": "Slovenia",
-      "lt": "Lithuania",
-      "lv": "Latvia",
-      "ee": "Estonia",
-      "lu": "Luxembourg",
-      "mt": "Malta",
-      "cy": "Cyprus",
-      "gr": "Greece",
-      "us": "United States",
-      "ca": "Canada",
       "au": "Australia",
       "nz": "New Zealand",
-      "br": "Brazil",
-      "mx": "Mexico",
+      "ca": "Canada",
       "in": "India",
-      "sg": "Singapore",
+      "pl": "Poland",
+      "br": "Brazil",
+      "at": "Austria",
       "za": "South Africa"
     },
     "matchScore": "Match Score",
@@ -445,7 +418,7 @@
       },
       "jobSearch": {
         "title": "Job Search",
-        "desc": "Search job listings across 39 countries. Use Smart Search to find offers matching your profile."
+        "desc": "Search job listings across 12 countries. Use Smart Search to find offers matching your profile."
       },
       "newApplication": {
         "title": "New Application",
@@ -475,7 +448,7 @@
       },
       "jobSearch": {
         "title": "Find Jobs",
-        "desc": "Search for jobs across 39 countries using the Adzuna API. Use Smart Search to get AI-powered suggestions based on your profile."
+        "desc": "Search for jobs across 12 countries using the Adzuna API. Use Smart Search to get AI-powered suggestions based on your profile."
       },
       "newApplication": {
         "title": "Create an Application",

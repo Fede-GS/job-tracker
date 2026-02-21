@@ -316,44 +316,17 @@
     "viewOriginal": "Vedi Annuncio",
     "country": "Paese",
     "countries": {
-      "it": "Italia",
       "gb": "Regno Unito",
+      "us": "Stati Uniti",
       "de": "Germania",
       "fr": "Francia",
-      "es": "Spagna",
-      "nl": "Paesi Bassi",
-      "at": "Austria",
-      "ch": "Svizzera",
-      "be": "Belgio",
-      "pl": "Polonia",
-      "se": "Svezia",
-      "no": "Norvegia",
-      "dk": "Danimarca",
-      "fi": "Finlandia",
-      "ie": "Irlanda",
-      "pt": "Portogallo",
-      "cz": "Repubblica Ceca",
-      "ro": "Romania",
-      "hu": "Ungheria",
-      "bg": "Bulgaria",
-      "hr": "Croazia",
-      "sk": "Slovacchia",
-      "si": "Slovenia",
-      "lt": "Lituania",
-      "lv": "Lettonia",
-      "ee": "Estonia",
-      "lu": "Lussemburgo",
-      "mt": "Malta",
-      "cy": "Cipro",
-      "gr": "Grecia",
-      "us": "Stati Uniti",
-      "ca": "Canada",
       "au": "Australia",
       "nz": "Nuova Zelanda",
-      "br": "Brasile",
-      "mx": "Messico",
+      "ca": "Canada",
       "in": "India",
-      "sg": "Singapore",
+      "pl": "Polonia",
+      "br": "Brasile",
+      "at": "Austria",
       "za": "Sudafrica"
     },
     "matchScore": "Match Score",
@@ -445,7 +418,7 @@
       },
       "jobSearch": {
         "title": "Cerca Lavoro",
-        "desc": "Cerca offerte in 39 paesi. Usa la Ricerca Smart per trovare offerte compatibili con il tuo profilo."
+        "desc": "Cerca offerte in 12 paesi. Usa la Ricerca Smart per trovare offerte compatibili con il tuo profilo."
       },
       "newApplication": {
         "title": "Nuova Candidatura",
@@ -475,7 +448,7 @@
       },
       "jobSearch": {
         "title": "Trova Lavoro",
-        "desc": "Cerca offerte in 39 paesi con l'API Adzuna. Usa la Ricerca Smart per suggerimenti AI basati sul tuo profilo."
+        "desc": "Cerca offerte in 12 paesi con l'API Adzuna. Usa la Ricerca Smart per suggerimenti AI basati sul tuo profilo."
       },
       "newApplication": {
         "title": "Crea una Candidatura",
