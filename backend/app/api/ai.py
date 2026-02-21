@@ -388,17 +388,29 @@ def generate_pdf():
         _verify_app_ownership(application_id)
 
     try:
-        upload_folder = current_app.config['UPLOAD_FOLDER']
-        filename, filepath, file_size = html_to_pdf(html_content, upload_folder, doc_type, template_id=template_id)
+        # Generate PDF in memory (no disk needed for cloud deploy)
+        filename, pdf_data, file_size = html_to_pdf(html_content, doc_type=doc_type, template_id=template_id)
 
         # Try to upload to Cloudinary
         cloud_url = None
         cloud_public_id = None
         try:
-            from ..services.cloud_storage import upload_file_from_path
-            cloud_url, cloud_public_id = upload_file_from_path(filepath, folder='pdfs')
-        except Exception:
-            pass  # Fallback to local
+            from io import BytesIO
+            from ..services.cloud_storage import upload_file as cloud_upload
+            pdf_buffer = BytesIO(pdf_data)
+            pdf_buffer.name = filename
+            cloud_url, cloud_public_id = cloud_upload(pdf_buffer, folder='pdfs')
+        except Exception as e:
+            current_app.logger.error(f'Cloudinary PDF upload failed: {e}')
+            # Fallback: save to local disk
+            try:
+                import os
+                upload_folder = current_app.config['UPLOAD_FOLDER']
+                filepath = os.path.join(upload_folder, filename)
+                with open(filepath, 'wb') as f:
+                    f.write(pdf_data)
+            except Exception:
+                pass
 
         doc = Document(
             application_id=application_id,

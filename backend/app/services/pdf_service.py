@@ -65,11 +65,13 @@ DEFAULT_CSS = """
 """
 
 
-def extract_text_from_pdf(filepath):
-    """Extract text from a PDF file using pdfplumber."""
+def extract_text_from_pdf(source):
+    """Extract text from a PDF file using pdfplumber.
+    source can be a filepath (str) or a file-like object (BytesIO / FileStorage).
+    """
     import pdfplumber
     text_parts = []
-    with pdfplumber.open(filepath) as pdf:
+    with pdfplumber.open(source) as pdf:
         for page in pdf.pages:
             page_text = page.extract_text()
             if page_text:
@@ -77,14 +79,17 @@ def extract_text_from_pdf(filepath):
     return '\n\n'.join(text_parts)
 
 
-def html_to_pdf(html_content, upload_folder, doc_type='cv', template_id=None):
-    """Convert HTML content to PDF using xhtml2pdf. Returns (filename, filepath, file_size)."""
+def html_to_pdf(html_content, upload_folder=None, doc_type='cv', template_id=None):
+    """Convert HTML content to PDF using xhtml2pdf.
+    Returns (filename, pdf_bytes, file_size) — works in memory, no disk needed.
+    If upload_folder is provided, also saves to disk (for local dev).
+    """
+    from io import BytesIO
     from xhtml2pdf import pisa
 
     timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
     unique_id = uuid.uuid4().hex[:8]
     filename = f"{doc_type}_{timestamp}_{unique_id}.pdf"
-    filepath = os.path.join(upload_folder, filename)
 
     # Use template-specific CSS if available, else default
     if template_id and template_id in TEMPLATE_CSS:
@@ -98,10 +103,19 @@ def html_to_pdf(html_content, upload_folder, doc_type='cv', template_id=None):
 <body>{html_content}</body>
 </html>"""
 
-    with open(filepath, 'wb') as pdf_file:
-        pisa_status = pisa.CreatePDF(full_html, dest=pdf_file)
-        if pisa_status.err:
-            raise RuntimeError(f'PDF generation failed with {pisa_status.err} errors')
+    buffer = BytesIO()
+    pisa_status = pisa.CreatePDF(full_html, dest=buffer)
+    if pisa_status.err:
+        raise RuntimeError(f'PDF generation failed with {pisa_status.err} errors')
 
-    file_size = os.path.getsize(filepath)
-    return filename, filepath, file_size
+    pdf_bytes = buffer.getvalue()
+    file_size = len(pdf_bytes)
+
+    # Optionally save to disk (local development)
+    if upload_folder:
+        filepath = os.path.join(upload_folder, filename)
+        with open(filepath, 'wb') as f:
+            f.write(pdf_bytes)
+        return filename, filepath, file_size
+
+    return filename, pdf_bytes, file_size

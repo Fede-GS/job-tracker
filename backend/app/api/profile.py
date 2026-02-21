@@ -1,8 +1,6 @@
-import os
 import json
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
-from werkzeug.utils import secure_filename
 from ..extensions import db
 from ..models import UserProfile
 from ..services.pdf_service import extract_text_from_pdf
@@ -68,13 +66,10 @@ def upload_cv():
     if not file.filename.lower().endswith('.pdf'):
         return jsonify({'error': {'message': 'Only PDF files are supported'}}), 400
 
-    filename = secure_filename(file.filename)
-    upload_folder = current_app.config['UPLOAD_FOLDER']
-    filepath = os.path.join(upload_folder, filename)
-    file.save(filepath)
-
     try:
-        text = extract_text_from_pdf(filepath)
+        # Extract text directly from file stream (no disk save needed)
+        file.seek(0)
+        text = extract_text_from_pdf(file)
         if not text.strip():
             return jsonify({'error': {'message': 'Could not extract text from PDF'}}), 400
 
@@ -84,9 +79,6 @@ def upload_cv():
         })
     except Exception as e:
         return jsonify({'error': {'message': f'Failed to extract PDF text: {str(e)}'}}), 500
-    finally:
-        if os.path.exists(filepath):
-            os.remove(filepath)
 
 
 @bp.route('/profile/onboarding-status', methods=['GET'])
