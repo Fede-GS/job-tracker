@@ -44,10 +44,12 @@ def upload_document(app_id):
     # Try Cloudinary upload, fallback to local
     cloud_url = None
     cloud_public_id = None
+    file_size = request.content_length or 0
     try:
+        file.seek(0)
         cloud_url, cloud_public_id = upload_file(file, folder='documents')
-        file_size = 0  # Cloudinary doesn't return size easily, set from content-length
-    except Exception:
+    except Exception as e:
+        current_app.logger.error(f'Cloudinary upload failed: {e}')
         # Fallback to local storage
         file.seek(0)
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], stored_name)

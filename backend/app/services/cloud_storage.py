@@ -1,12 +1,14 @@
 import os
 import cloudinary
 import cloudinary.uploader
-from flask import current_app
 
 
 def _ensure_configured():
     """Configure Cloudinary from environment if not already done."""
-    url = current_app.config.get('CLOUDINARY_URL') or os.environ.get('CLOUDINARY_URL')
+    if cloudinary.config().cloud_name:
+        return  # Already configured (auto-loaded from CLOUDINARY_URL env var)
+
+    url = os.environ.get('CLOUDINARY_URL', '')
     if url:
         cloudinary.config(cloudinary_url=url)
     else:
@@ -21,7 +23,7 @@ def upload_file(file, folder='documents'):
     result = cloudinary.uploader.upload(
         file,
         folder=folder,
-        resource_type='auto',
+        resource_type='raw',
     )
     return result['secure_url'], result['public_id']
 
@@ -34,7 +36,7 @@ def upload_file_from_path(filepath, folder='documents'):
     result = cloudinary.uploader.upload(
         filepath,
         folder=folder,
-        resource_type='auto',
+        resource_type='raw',
     )
     return result['secure_url'], result['public_id']
 
