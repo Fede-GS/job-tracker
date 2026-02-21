@@ -106,7 +106,7 @@ def upgrade():
         sa.Column('application_id', sa.Integer(), sa.ForeignKey('applications.id'), nullable=False),
         sa.Column('remind_at', sa.DateTime(), nullable=False),
         sa.Column('message', sa.String(500), nullable=False),
-        sa.Column('is_dismissed', sa.Boolean(), nullable=False, server_default=sa.false_()),
+        sa.Column('is_dismissed', sa.Boolean(), nullable=False, server_default=sa.text('false')),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.func.now()),
     )
 
