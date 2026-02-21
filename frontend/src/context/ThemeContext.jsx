@@ -11,7 +11,11 @@ export function ThemeProvider({ children }) {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Only fetch server settings if the user is logged in
   useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+
     getSettings()
       .then(({ settings }) => {
         if (settings.theme) {

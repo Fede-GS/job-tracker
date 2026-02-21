@@ -156,7 +156,11 @@ def extract_cv_profile():
     try:
         profile_data = service.extract_profile_from_cv(text)
         return jsonify({'profile': profile_data})
+    except json.JSONDecodeError as e:
+        current_app.logger.error(f'JSON parse error in extract_cv_profile: {e}')
+        return jsonify({'error': {'message': 'AI returned invalid JSON. Please try again.'}}), 502
     except Exception as e:
+        current_app.logger.error(f'extract_cv_profile failed: {e}')
         return jsonify({'error': {'message': f'Failed to extract profile: {str(e)}'}}), 500
 
 
