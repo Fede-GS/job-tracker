@@ -1,29 +1,32 @@
 import json
+import os
 from datetime import date
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
+from flask_jwt_extended import jwt_required
 from ..extensions import db
-from ..models import Application, Setting, UserProfile, StatusHistory
+from ..models import Application, UserProfile, StatusHistory
 from ..services.adzuna_service import AdzunaService
 from ..services.gemini_service import GeminiService
+from ..utils.auth_helpers import get_current_user_id, get_current_profile
 
 bp = Blueprint('job_search', __name__, url_prefix='/api')
 
 
 def _get_adzuna_service():
-    app_id = Setting.get('adzuna_app_id')
-    api_key = Setting.get('adzuna_api_key')
+    app_id = current_app.config.get('ADZUNA_APP_ID')
+    api_key = current_app.config.get('ADZUNA_API_KEY')
     if not app_id or not api_key:
         return None, jsonify({
-            'error': {'message': 'Adzuna API credentials not configured. Go to Settings to add them.'}
+            'error': {'message': 'Adzuna API credentials not configured.'}
         }), 422
     return AdzunaService(app_id, api_key), None, None
 
 
 def _get_gemini_service():
-    api_key = Setting.get('gemini_api_key')
+    api_key = current_app.config.get('GEMINI_API_KEY')
     if not api_key:
         return None, jsonify({
-            'error': {'message': 'Gemini API key not configured. Go to Settings to add it.'}
+            'error': {'message': 'Gemini API key not configured.'}
         }), 422
     try:
         return GeminiService(api_key), None, None
@@ -32,11 +35,11 @@ def _get_gemini_service():
 
 
 def _get_profile_dict():
-    profile = UserProfile.query.first()
-    return profile.to_dict() if profile else {}
+    return get_current_profile()
 
 
 @bp.route('/job-search/smart-suggestions', methods=['GET'])
+@jwt_required()
 def smart_suggestions():
     """Generate search queries based on user profile."""
     gemini, error_response, status = _get_gemini_service()
@@ -47,7 +50,6 @@ def smart_suggestions():
     if not profile.get('full_name'):
         return jsonify({'error': {'message': 'Complete your profile first.'}}), 400
 
-    # Build context from profile
     skills = profile.get('skills', [])
     experiences = profile.get('work_experiences', [])
     summary = profile.get('professional_summary', '')
@@ -73,7 +75,6 @@ Return ONLY valid JSON, no markdown."""
         suggestions = gemini._parse_json_response(result)
         return jsonify({'suggestions': suggestions, 'profile_location': location})
     except Exception as e:
-        # Fallback: generate suggestions from profile data directly
         fallback = []
         for role in recent_roles[:3]:
             fallback.append({'query': role, 'location': location})
@@ -83,6 +84,7 @@ Return ONLY valid JSON, no markdown."""
 
 
 @bp.route('/job-search/search', methods=['GET'])
+@jwt_required()
 def search_jobs():
     service, error_response, status = _get_adzuna_service()
     if error_response:
@@ -110,6 +112,7 @@ def search_jobs():
 
 
 @bp.route('/job-search/analyze-match', methods=['POST'])
+@jwt_required()
 def analyze_match():
     gemini, error_response, status = _get_gemini_service()
     if error_response:
@@ -137,7 +140,9 @@ def analyze_match():
 
 
 @bp.route('/job-search/save-application', methods=['POST'])
+@jwt_required()
 def save_application():
+    uid = get_current_user_id()
     data = request.get_json()
     if not data:
         return jsonify({'error': {'message': 'Request body is required'}}), 400
@@ -148,17 +153,14 @@ def save_application():
     if not title or not company:
         return jsonify({'error': {'message': 'Title and company are required'}}), 400
 
-    # Build job posting text from Adzuna data
     job_posting_text = data.get('description', '')
 
-    # Parse match analysis if provided
     match_analysis = data.get('match_analysis')
     match_score = None
     if match_analysis:
         match_score = match_analysis.get('match_score')
         match_analysis = json.dumps(match_analysis)
 
-    # Convert salary to int (Adzuna sends floats)
     salary_min = data.get('salary_min')
     salary_max = data.get('salary_max')
     if salary_min is not None:
@@ -168,6 +170,7 @@ def save_application():
 
     try:
         application = Application(
+            user_id=uid,
             company=company,
             role=title,
             location=data.get('location', ''),
@@ -185,7 +188,6 @@ def save_application():
         db.session.add(application)
         db.session.flush()
 
-        # Create initial status history
         history = StatusHistory(
             application_id=application.id,
             from_status=None,

@@ -1,17 +1,21 @@
 import json
+import os
 from flask import Blueprint, request, jsonify, current_app
+from flask_jwt_extended import jwt_required
 from ..extensions import db
-from ..models import Application, Setting, UserProfile, ChatMessage, Document
+from ..models import Application, UserProfile, ChatMessage, Document
 from ..services.gemini_service import GeminiService
 from ..services.pdf_service import html_to_pdf
+from ..utils.auth_helpers import get_current_user_id, get_current_profile
 
 bp = Blueprint('ai', __name__, url_prefix='/api')
 
 
 def _get_gemini_service():
-    api_key = Setting.get('gemini_api_key')
+    # Use shared API key from environment
+    api_key = current_app.config.get('GEMINI_API_KEY')
     if not api_key:
-        return None, jsonify({'error': {'message': 'Gemini API key not configured. Go to Settings to add it.'}}), 422
+        return None, jsonify({'error': {'message': 'Gemini API key not configured.'}}), 422
     try:
         return GeminiService(api_key), None, None
     except Exception as e:
@@ -19,11 +23,16 @@ def _get_gemini_service():
 
 
 def _get_profile_dict():
-    profile = UserProfile.query.first()
-    return profile.to_dict() if profile else {}
+    return get_current_profile()
+
+
+def _verify_app_ownership(app_id):
+    uid = get_current_user_id()
+    return Application.query.filter_by(id=app_id, user_id=uid).first_or_404()
 
 
 @bp.route('/ai/parse-job-post', methods=['POST'])
+@jwt_required()
 def parse_job_post():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -42,6 +51,7 @@ def parse_job_post():
 
 
 @bp.route('/ai/generate-cv', methods=['POST'])
+@jwt_required()
 def generate_cv():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -64,6 +74,7 @@ def generate_cv():
 
 
 @bp.route('/ai/generate-cover-letter', methods=['POST'])
+@jwt_required()
 def generate_cover_letter():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -86,6 +97,7 @@ def generate_cover_letter():
 
 
 @bp.route('/ai/summarize-application', methods=['POST'])
+@jwt_required()
 def summarize_application():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -96,7 +108,7 @@ def summarize_application():
     if not app_id:
         return jsonify({'error': {'message': 'application_id is required'}}), 400
 
-    app = db.get_or_404(Application, app_id)
+    app = _verify_app_ownership(app_id)
 
     try:
         summary = service.summarize_application(app.to_dict())
@@ -108,6 +120,7 @@ def summarize_application():
 
 
 @bp.route('/ai/improve-text', methods=['POST'])
+@jwt_required()
 def improve_text():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -129,6 +142,7 @@ def improve_text():
 
 
 @bp.route('/ai/extract-cv-profile', methods=['POST'])
+@jwt_required()
 def extract_cv_profile():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -147,6 +161,7 @@ def extract_cv_profile():
 
 
 @bp.route('/ai/match-analysis', methods=['POST'])
+@jwt_required()
 def match_analysis():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -169,6 +184,7 @@ def match_analysis():
 
 
 @bp.route('/ai/tailor-cv', methods=['POST'])
+@jwt_required()
 def tailor_cv():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -195,6 +211,7 @@ def tailor_cv():
 
 
 @bp.route('/ai/tailor-cv-template', methods=['POST'])
+@jwt_required()
 def tailor_cv_template():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -227,6 +244,7 @@ def tailor_cv_template():
 
 
 @bp.route('/ai/tailor-cover-letter', methods=['POST'])
+@jwt_required()
 def tailor_cover_letter():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -254,6 +272,7 @@ def tailor_cover_letter():
 
 
 @bp.route('/ai/generate-followup', methods=['POST'])
+@jwt_required()
 def generate_followup():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -264,7 +283,7 @@ def generate_followup():
     if not app_id:
         return jsonify({'error': {'message': 'application_id is required'}}), 400
 
-    app = db.get_or_404(Application, app_id)
+    app = _verify_app_ownership(app_id)
     profile = _get_profile_dict()
     if not profile.get('full_name'):
         return jsonify({'error': {'message': 'User profile is required.'}}), 400
@@ -279,6 +298,7 @@ def generate_followup():
 
 
 @bp.route('/ai/interview-prep', methods=['POST'])
+@jwt_required()
 def interview_prep():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -289,7 +309,7 @@ def interview_prep():
     if not app_id:
         return jsonify({'error': {'message': 'application_id is required'}}), 400
 
-    app = db.get_or_404(Application, app_id)
+    app = _verify_app_ownership(app_id)
     profile = _get_profile_dict()
     if not profile.get('full_name'):
         return jsonify({'error': {'message': 'User profile is required.'}}), 400
@@ -302,6 +322,7 @@ def interview_prep():
 
 
 @bp.route('/ai/chat', methods=['POST'])
+@jwt_required()
 def chat():
     service, error_response, status = _get_gemini_service()
     if error_response:
@@ -328,6 +349,7 @@ def chat():
         # Save messages if linked to an application
         app_id = data.get('application_id')
         if app_id:
+            _verify_app_ownership(app_id)
             user_msg = ChatMessage(
                 application_id=app_id,
                 role='user',
@@ -350,6 +372,7 @@ def chat():
 
 
 @bp.route('/ai/generate-pdf', methods=['POST'])
+@jwt_required()
 def generate_pdf():
     data = request.get_json()
     html_content = data.get('html', '').strip()
@@ -360,11 +383,23 @@ def generate_pdf():
     application_id = data.get('application_id')
     template_id = data.get('template_id')
 
+    # Verify ownership if linked to application
+    if application_id:
+        _verify_app_ownership(application_id)
+
     try:
         upload_folder = current_app.config['UPLOAD_FOLDER']
         filename, filepath, file_size = html_to_pdf(html_content, upload_folder, doc_type, template_id=template_id)
 
-        # Save as document if linked to application
+        # Try to upload to Cloudinary
+        cloud_url = None
+        cloud_public_id = None
+        try:
+            from ..services.cloud_storage import upload_file_from_path
+            cloud_url, cloud_public_id = upload_file_from_path(filepath, folder='pdfs')
+        except Exception:
+            pass  # Fallback to local
+
         doc = Document(
             application_id=application_id,
             filename=filename,
@@ -372,6 +407,8 @@ def generate_pdf():
             file_type='application/pdf',
             file_size=file_size,
             doc_category=doc_type,
+            cloud_url=cloud_url,
+            cloud_public_id=cloud_public_id,
         )
         db.session.add(doc)
         db.session.commit()

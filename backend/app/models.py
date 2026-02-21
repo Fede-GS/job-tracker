@@ -3,10 +3,36 @@ from datetime import date, datetime
 from .extensions import db
 
 
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    full_name = db.Column(db.String(200))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+
+    # Relationships
+    profile = db.relationship('UserProfile', backref='user', uselist=False, cascade='all, delete-orphan')
+    applications = db.relationship('Application', backref='user', cascade='all, delete-orphan')
+    settings = db.relationship('Setting', backref='user', cascade='all, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'full_name': self.full_name,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'is_active': self.is_active,
+        }
+
+
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     full_name = db.Column(db.String(200))
     email = db.Column(db.String(200))
     phone = db.Column(db.String(50))
@@ -59,6 +85,7 @@ class Application(db.Model):
     __tablename__ = 'applications'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     company = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(200), nullable=False)
     location = db.Column(db.String(200))
@@ -157,6 +184,8 @@ class Document(db.Model):
     file_type = db.Column(db.String(50), nullable=False)
     file_size = db.Column(db.Integer, nullable=False)
     doc_category = db.Column(db.String(30), nullable=False, default='cv')
+    cloud_url = db.Column(db.String(500))
+    cloud_public_id = db.Column(db.String(300))
     uploaded_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def to_dict(self):
@@ -167,6 +196,7 @@ class Document(db.Model):
             'file_type': self.file_type,
             'file_size': self.file_size,
             'doc_category': self.doc_category,
+            'cloud_url': self.cloud_url,
             'uploaded_at': self.uploaded_at.isoformat() if self.uploaded_at else None,
         }
 
@@ -219,21 +249,26 @@ class Setting(db.Model):
     __tablename__ = 'settings'
 
     id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(100), nullable=False, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    key = db.Column(db.String(100), nullable=False)
     value = db.Column(db.Text)
 
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'key', name='uq_user_setting'),
+    )
+
     @staticmethod
-    def get(key, default=None):
-        setting = Setting.query.filter_by(key=key).first()
+    def get(key, user_id, default=None):
+        setting = Setting.query.filter_by(key=key, user_id=user_id).first()
         return setting.value if setting else default
 
     @staticmethod
-    def set(key, value):
-        setting = Setting.query.filter_by(key=key).first()
+    def set(key, value, user_id):
+        setting = Setting.query.filter_by(key=key, user_id=user_id).first()
         if setting:
             setting.value = value
         else:
-            setting = Setting(key=key, value=value)
+            setting = Setting(key=key, value=value, user_id=user_id)
             db.session.add(setting)
         db.session.commit()
         return setting

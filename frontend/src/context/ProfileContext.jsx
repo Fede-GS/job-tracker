@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getProfile, getOnboardingStatus } from '../api/profile';
+import { useAuth } from './AuthContext';
 
 const ProfileContext = createContext();
 
 export function ProfileProvider({ children }) {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState(null);
   const [onboardingCompleted, setOnboardingCompleted] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,8 +32,18 @@ export function ProfileProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+
+    if (!isAuthenticated) {
+      setProfile(null);
+      setOnboardingCompleted(false);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     Promise.all([fetchProfile(), checkOnboarding()]).finally(() => setLoading(false));
-  }, [fetchProfile, checkOnboarding]);
+  }, [isAuthenticated, authLoading, fetchProfile, checkOnboarding]);
 
   return (
     <ProfileContext.Provider value={{
@@ -39,7 +51,7 @@ export function ProfileProvider({ children }) {
       setProfile,
       onboardingCompleted,
       setOnboardingCompleted,
-      loading,
+      loading: loading || authLoading,
       fetchProfile,
       checkOnboarding,
     }}>

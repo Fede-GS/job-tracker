@@ -1,6 +1,7 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
 
 const navItems = [
@@ -16,6 +17,13 @@ const navItems = [
 export default function Sidebar() {
   const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <aside className="sidebar">
@@ -41,11 +49,21 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
+        {user && (
+          <div className="sidebar-user">
+            <span className="material-icon">account_circle</span>
+            <span className="sidebar-user-name">{user.full_name || user.email}</span>
+          </div>
+        )}
         <button className="theme-toggle" onClick={toggleTheme}>
           <span className="material-icon">
             {theme === 'light' ? 'dark_mode' : 'light_mode'}
           </span>
           <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+        </button>
+        <button className="theme-toggle logout-btn" onClick={handleLogout}>
+          <span className="material-icon">logout</span>
+          <span>{t('auth.logout')}</span>
         </button>
       </div>
     </aside>

@@ -1,7 +1,8 @@
-import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { ProfileProvider } from './context/ProfileContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Sidebar from './components/layout/Sidebar';
 import RightPanel from './components/layout/RightPanel';
 import Toast from './components/common/Toast';
@@ -16,6 +17,44 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import JobSearch from './pages/JobSearch';
 import Onboarding from './pages/Onboarding';
+import Login from './pages/Login';
+import Register from './pages/Register';
+
+function RequireAuth({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <div className="loading-spinner" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function PublicRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <div className="loading-spinner" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 function AppLayout() {
   const location = useLocation();
@@ -50,26 +89,37 @@ export default function App() {
   return (
     <ThemeProvider>
       <NotificationProvider>
-        <ProfileProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Onboarding: fullscreen, no sidebar */}
-              <Route path="/onboarding" element={<Onboarding />} />
+        <AuthProvider>
+          <ProfileProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public auth routes */}
+                <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
-              {/* All other routes: sidebar + OnboardingGuard */}
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/applications" element={<ApplicationsList />} />
-                <Route path="/applications/new" element={<NewApplication />} />
-                <Route path="/applications/:id" element={<ApplicationDetail />} />
-                <Route path="/search" element={<JobSearch />} />
-                <Route path="/ai" element={<AIAssistant />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </ProfileProvider>
+                {/* Onboarding: fullscreen, no sidebar, requires auth */}
+                <Route path="/onboarding" element={
+                  <RequireAuth><Onboarding /></RequireAuth>
+                } />
+
+                {/* All other routes: sidebar + OnboardingGuard + RequireAuth */}
+                <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/applications" element={<ApplicationsList />} />
+                  <Route path="/applications/new" element={<NewApplication />} />
+                  <Route path="/applications/:id" element={<ApplicationDetail />} />
+                  <Route path="/search" element={<JobSearch />} />
+                  <Route path="/ai" element={<AIAssistant />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
+
+                {/* Catch all — redirect to login or home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </ProfileProvider>
+        </AuthProvider>
       </NotificationProvider>
     </ThemeProvider>
   );

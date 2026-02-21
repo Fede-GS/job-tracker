@@ -1,30 +1,35 @@
 import os
 import json
 from flask import Blueprint, request, jsonify, current_app
+from flask_jwt_extended import jwt_required
 from werkzeug.utils import secure_filename
 from ..extensions import db
 from ..models import UserProfile
 from ..services.pdf_service import extract_text_from_pdf
+from ..utils.auth_helpers import get_current_user_id
 
 bp = Blueprint('profile', __name__, url_prefix='/api')
 
 
 def _get_or_create_profile():
-    profile = UserProfile.query.first()
+    uid = get_current_user_id()
+    profile = UserProfile.query.filter_by(user_id=uid).first()
     if not profile:
-        profile = UserProfile()
+        profile = UserProfile(user_id=uid)
         db.session.add(profile)
         db.session.commit()
     return profile
 
 
 @bp.route('/profile', methods=['GET'])
+@jwt_required()
 def get_profile():
     profile = _get_or_create_profile()
     return jsonify({'profile': profile.to_dict()})
 
 
 @bp.route('/profile', methods=['PUT'])
+@jwt_required()
 def update_profile():
     profile = _get_or_create_profile()
     data = request.get_json()
@@ -51,6 +56,7 @@ def update_profile():
 
 
 @bp.route('/profile/upload-cv', methods=['POST'])
+@jwt_required()
 def upload_cv():
     if 'file' not in request.files:
         return jsonify({'error': {'message': 'No file provided'}}), 400
@@ -84,12 +90,14 @@ def upload_cv():
 
 
 @bp.route('/profile/onboarding-status', methods=['GET'])
+@jwt_required()
 def onboarding_status():
     profile = _get_or_create_profile()
     return jsonify({'completed': profile.onboarding_completed})
 
 
 @bp.route('/profile/complete-onboarding', methods=['POST'])
+@jwt_required()
 def complete_onboarding():
     profile = _get_or_create_profile()
     profile.onboarding_completed = True
