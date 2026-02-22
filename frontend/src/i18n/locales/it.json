@@ -473,6 +473,20 @@
         "desc": "Configura le API key, l'aspetto, la lingua e altre preferenze."
       }
     },
+    "guide": {
+      "title": "Come funziona?",
+      "subtitle": "4 semplici passi per gestire le tue candidature con l'AI",
+      "step1Title": "Trova un Lavoro",
+      "step1Desc": "Cerca sulla tua piattaforma preferita: LinkedIn, Indeed, Glassdoor, InfoJobs o qualsiasi altro sito di lavoro",
+      "step2Title": "Copia l'Annuncio",
+      "step2Desc": "Seleziona e copia il testo completo dell'annuncio di lavoro che ti interessa",
+      "step3Title": "Incolla su FinixJob",
+      "step3Desc": "Vai su Nuova Candidatura e incolla l'annuncio. L'AI estrarra' automaticamente tutti i dettagli",
+      "step4Title": "L'AI Fa il Resto",
+      "step4Desc": "Ottieni analisi di compatibilita', CV personalizzato e lettera di presentazione in pochi secondi",
+      "continue": "Continua il Tour",
+      "skipAll": "Salta"
+    },
     "page": {
       "dashboard": {
         "title": "Panoramica Dashboard",

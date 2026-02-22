@@ -75,6 +75,188 @@
   margin: 0 auto 16px;
 }
 
+/* ── Guide Phase (visual workflow) ── */
+.tutorial-guide {
+  background: var(--bg-card);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(99, 102, 241, 0.1);
+  width: 92%;
+  max-width: 760px;
+  padding: 40px 36px 32px;
+  text-align: center;
+  animation: bounceIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 2003;
+}
+
+[data-theme="dark"] .tutorial-guide {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: var(--glass-border);
+}
+
+.tutorial-guide-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+
+.tutorial-guide-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0 0 32px;
+  line-height: 1.5;
+}
+
+/* Flow container: horizontal on desktop */
+.tutorial-guide-flow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 32px;
+}
+
+/* Arrow between cards */
+.tutorial-guide-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 40px;
+  flex-shrink: 0;
+}
+
+.tutorial-guide-arrow .material-icon {
+  font-size: 24px !important;
+  color: var(--text-muted, var(--text-secondary));
+  opacity: 0.4;
+  animation: guideArrowPulse 2s ease-in-out infinite;
+}
+
+@keyframes guideArrowPulse {
+  0%, 100% { opacity: 0.3; transform: translateX(0); }
+  50% { opacity: 0.7; transform: translateX(3px); }
+}
+
+/* Individual step card */
+.tutorial-guide-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 150px;
+  flex-shrink: 0;
+  position: relative;
+  animation: guideCardFadeIn 0.5s ease both;
+}
+
+@keyframes guideCardFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Step number badge */
+.tutorial-guide-card-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* Icon wrapper circle */
+.tutorial-guide-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  background: color-mix(in srgb, var(--step-color) 12%, transparent);
+  border: 2px solid color-mix(in srgb, var(--step-color) 30%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tutorial-guide-icon-wrap:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--step-color) 25%, transparent);
+}
+
+.tutorial-guide-icon-wrap .material-icon {
+  font-size: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  color: var(--step-color);
+}
+
+/* Card title */
+.tutorial-guide-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+/* Card description */
+.tutorial-guide-card-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Platform badges (step 1) */
+.tutorial-guide-platforms {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.platform-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+.platform-badge.linkedin { background: #0077B5; }
+.platform-badge.indeed { background: #2164f3; }
+.platform-badge.glassdoor { background: #0caa41; }
+.platform-badge.infojobs { background: #ff6600; }
+
+/* Guide actions */
+.tutorial-guide-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.tutorial-guide-actions .btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 200px;
+  justify-content: center;
+}
+
 /* ── SVG Backdrop with spotlight cutout ── */
 .tutorial-backdrop-svg {
   position: fixed;
@@ -270,5 +452,38 @@
   .tutorial-modal {
     padding: 28px 20px 24px;
     margin: 12px;
+  }
+
+  .tutorial-guide {
+    padding: 24px 16px 20px;
+    margin: 12px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .tutorial-guide-flow {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .tutorial-guide-card {
+    width: 100%;
+    max-width: 260px;
+  }
+
+  .tutorial-guide-arrow {
+    padding: 8px 0;
+    transform: rotate(90deg);
+  }
+
+  .tutorial-guide-title {
+    font-size: 20px;
+  }
+
+  .tutorial-guide-subtitle {
+    font-size: 13px;
+    margin-bottom: 20px;
   }
 }

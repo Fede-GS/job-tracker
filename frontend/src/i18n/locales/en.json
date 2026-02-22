@@ -473,6 +473,20 @@
         "desc": "Configure API keys, appearance, language, and other preferences."
       }
     },
+    "guide": {
+      "title": "How does it work?",
+      "subtitle": "4 simple steps to manage your job applications with AI",
+      "step1Title": "Find a Job",
+      "step1Desc": "Search on your favorite platform: LinkedIn, Indeed, Glassdoor, InfoJobs or any other job site",
+      "step2Title": "Copy the Posting",
+      "step2Desc": "Select and copy the full text of the job posting you're interested in",
+      "step3Title": "Paste in FinixJob",
+      "step3Desc": "Go to New Application and paste the posting. The AI will automatically extract all the details",
+      "step4Title": "AI Does the Rest",
+      "step4Desc": "Get match analysis, a tailored CV and a personalized cover letter in seconds",
+      "continue": "Continue to Tour",
+      "skipAll": "Skip"
+    },
     "page": {
       "dashboard": {
         "title": "Dashboard Overview",
