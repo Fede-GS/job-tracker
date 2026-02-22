@@ -20,11 +20,16 @@ class JSearchService:
 
         params = {
             'query': search_query,
-            'page': str(page),
-            'num_pages': '1',
+            'page': page,
+            'num_pages': 1,
         }
 
         response = requests.get(self.BASE_URL, headers=headers, params=params, timeout=15)
+
+        # Debug: log error details before raising
+        if response.status_code != 200:
+            print(f"[JSearch] Status: {response.status_code}, Response: {response.text[:500]}")
+
         response.raise_for_status()
         data = response.json()
 

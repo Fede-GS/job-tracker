@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import './TutorialOverlay.css';
 
@@ -13,9 +13,17 @@ const TOUR_STEPS = [
   { nav: '/settings', key: 'settings', icon: 'settings' },
 ];
 
+// Guide steps: visual workflow overview
+const GUIDE_STEPS = [
+  { icon: 'travel_explore', titleKey: 'step1Title', descKey: 'step1Desc', color: '#3b82f6' },
+  { icon: 'content_copy', titleKey: 'step2Title', descKey: 'step2Desc', color: '#f59e0b' },
+  { icon: 'content_paste_go', titleKey: 'step3Title', descKey: 'step3Desc', color: '#10b981' },
+  { icon: 'auto_awesome', titleKey: 'step4Title', descKey: 'step4Desc', color: '#8b5cf6' },
+];
+
 export default function TutorialOverlay({ isOpen, onClose }) {
   const { t } = useTranslation();
-  // phase: 'welcome' | 'tour' | 'finish'
+  // phase: 'welcome' | 'guide' | 'tour' | 'finish'
   const [phase, setPhase] = useState('welcome');
   const [stepIndex, setStepIndex] = useState(0);
   const [targetRect, setTargetRect] = useState(null);
@@ -65,7 +73,11 @@ export default function TutorialOverlay({ isOpen, onClose }) {
     onClose();
   }, [onClose]);
 
-  const handleStartTour = useCallback(() => {
+  const handleStartGuide = useCallback(() => {
+    setPhase('guide');
+  }, []);
+
+  const handleGuideToTour = useCallback(() => {
     setPhase('tour');
     setStepIndex(0);
   }, []);
@@ -106,12 +118,13 @@ export default function TutorialOverlay({ isOpen, onClose }) {
         if (e.key === 'ArrowRight' || e.key === 'Enter') handleNext();
         if (e.key === 'ArrowLeft') handlePrevious();
       }
-      if (phase === 'welcome' && e.key === 'Enter') handleStartTour();
+      if (phase === 'welcome' && e.key === 'Enter') handleStartGuide();
+      if (phase === 'guide' && e.key === 'Enter') handleGuideToTour();
       if (phase === 'finish' && e.key === 'Enter') handleFinish();
     };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [isOpen, phase, handleNext, handlePrevious, handleSkip, handleStartTour, handleFinish]);
+  }, [isOpen, phase, handleNext, handlePrevious, handleSkip, handleStartGuide, handleGuideToTour, handleFinish]);
 
   if (!isOpen) return null;
 
@@ -134,12 +147,70 @@ export default function TutorialOverlay({ isOpen, onClose }) {
           <h2 className="tutorial-modal-title">{t('tutorial.welcomeTitle')}</h2>
           <p className="tutorial-modal-desc">{t('tutorial.welcomeDesc')}</p>
           <div className="tutorial-modal-actions">
-            <button className="btn btn-primary" onClick={handleStartTour}>
+            <button className="btn btn-primary" onClick={handleStartGuide}>
               <span className="material-icon" style={{ fontSize: 18 }}>play_arrow</span>
               {t('tutorial.startTour')}
             </button>
             <button className="btn btn-ghost" onClick={handleSkip}>
               {t('tutorial.skipTour')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── GUIDE PHASE ── */}
+      {phase === 'guide' && (
+        <div className="tutorial-guide" onClick={(e) => e.stopPropagation()}>
+          <h2 className="tutorial-guide-title">{t('tutorial.guide.title')}</h2>
+          <p className="tutorial-guide-subtitle">{t('tutorial.guide.subtitle')}</p>
+
+          <div className="tutorial-guide-flow">
+            {GUIDE_STEPS.map((gs, i) => (
+              <Fragment key={i}>
+                {i > 0 && (
+                  <div className="tutorial-guide-arrow">
+                    <span className="material-icon">arrow_forward</span>
+                  </div>
+                )}
+                <div
+                  className="tutorial-guide-card"
+                  style={{ animationDelay: `${i * 0.12}s` }}
+                >
+                  <span className="tutorial-guide-card-num" style={{ background: gs.color }}>
+                    {i + 1}
+                  </span>
+                  <div
+                    className="tutorial-guide-icon-wrap"
+                    style={{ '--step-color': gs.color }}
+                  >
+                    <span className="material-icon">{gs.icon}</span>
+                  </div>
+                  <h4 className="tutorial-guide-card-title">
+                    {t(`tutorial.guide.${gs.titleKey}`)}
+                  </h4>
+                  <p className="tutorial-guide-card-desc">
+                    {t(`tutorial.guide.${gs.descKey}`)}
+                  </p>
+                  {i === 0 && (
+                    <div className="tutorial-guide-platforms">
+                      <span className="platform-badge linkedin">in</span>
+                      <span className="platform-badge indeed">iD</span>
+                      <span className="platform-badge glassdoor">G</span>
+                      <span className="platform-badge infojobs">iJ</span>
+                    </div>
+                  )}
+                </div>
+              </Fragment>
+            ))}
+          </div>
+
+          <div className="tutorial-guide-actions">
+            <button className="btn btn-primary" onClick={handleGuideToTour}>
+              <span className="material-icon" style={{ fontSize: 18 }}>arrow_forward</span>
+              {t('tutorial.guide.continue')}
+            </button>
+            <button className="btn btn-ghost" onClick={handleSkip}>
+              {t('tutorial.guide.skipAll')}
             </button>
           </div>
         </div>

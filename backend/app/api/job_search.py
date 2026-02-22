@@ -1,4 +1,5 @@
 import json
+import requests as http_requests
 from datetime import date
 from flask import Blueprint, request, jsonify
 from ..extensions import db
@@ -126,6 +127,15 @@ def search_jobs():
                 per_page=15,
             )
         return jsonify(results)
+    except http_requests.exceptions.HTTPError as e:
+        # Show actual API error message for better debugging
+        error_msg = str(e)
+        try:
+            error_body = e.response.json()
+            error_msg = error_body.get('message', error_body.get('error', str(e)))
+        except Exception:
+            error_msg = e.response.text[:200] if e.response else str(e)
+        return jsonify({'error': {'message': f'Search failed: {error_msg}'}}), 500
     except Exception as e:
         return jsonify({'error': {'message': f'Search failed: {str(e)}'}}), 500
 
