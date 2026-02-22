@@ -23,6 +23,7 @@ export default function JobSearch() {
   const navigate = useNavigate();
   const { addNotification } = useNotification();
 
+  const [source, setSource] = useState('adzuna');
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
   const [country, setCountry] = useState('gb');
@@ -58,7 +59,11 @@ export default function JobSearch() {
     setApiNotConfigured(false);
 
     try {
-      const result = await searchJobs({ q: query.trim(), location: location.trim(), country, page: targetPage });
+      const params = { q: query.trim(), location: location.trim(), page: targetPage, source };
+      if (source === 'adzuna') {
+        params.country = country;
+      }
+      const result = await searchJobs(params);
       setJobs(result.jobs || []);
       setTotal(result.total || 0);
       setPage(result.page || 1);
@@ -148,6 +153,16 @@ export default function JobSearch() {
     }
   };
 
+  const handleSourceChange = (newSource) => {
+    setSource(newSource);
+    setJobs([]);
+    setSearched(false);
+    setApiNotConfigured(false);
+    setTotal(0);
+    setPages(0);
+    setPage(1);
+  };
+
   const closeModal = () => {
     setShowMatchModal(false);
     setMatchResult(null);
@@ -160,6 +175,26 @@ export default function JobSearch() {
       <div className="page-header">
         <h1>{t('jobSearch.title')}</h1>
         <p>{t('jobSearch.subtitle')}</p>
+      </div>
+
+      {/* Source toggle */}
+      <div className="job-source-toggle">
+        <button
+          className={`source-pill ${source === 'adzuna' ? 'active' : ''}`}
+          onClick={() => handleSourceChange('adzuna')}
+        >
+          <span className="material-icon">travel_explore</span>
+          {t('jobSearch.sourceAdzuna')}
+          <span className="source-pill-badge">12 {t('jobSearch.country').toLowerCase()}</span>
+        </button>
+        <button
+          className={`source-pill ${source === 'jsearch' ? 'active' : ''}`}
+          onClick={() => handleSourceChange('jsearch')}
+        >
+          <span className="material-icon">public</span>
+          {t('jobSearch.sourceJSearch')}
+          <span className="source-pill-badge">Global</span>
+        </button>
       </div>
 
       {/* Search bar */}
@@ -180,11 +215,13 @@ export default function JobSearch() {
           onChange={(e) => setLocation(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <select className="form-select job-country-select" value={country} onChange={(e) => setCountry(e.target.value)}>
-          {COUNTRIES.map((c) => (
-            <option key={c} value={c}>{t(`jobSearch.countries.${c}`)}</option>
-          ))}
-        </select>
+        {source === 'adzuna' && (
+          <select className="form-select job-country-select" value={country} onChange={(e) => setCountry(e.target.value)}>
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c}>{t(`jobSearch.countries.${c}`)}</option>
+            ))}
+          </select>
+        )}
         <button className="btn btn-primary" onClick={() => handleSearch(1)} disabled={loading || !query.trim()}>
           {loading ? <><span className="spinner" /> {t('jobSearch.searching')}</> : t('jobSearch.search')}
         </button>
@@ -220,8 +257,8 @@ export default function JobSearch() {
       {apiNotConfigured && (
         <div className="card job-search-empty">
           <span className="material-icon" style={{ fontSize: 40, color: 'var(--warning)', marginBottom: 12 }}>key</span>
-          <h3>{t('jobSearch.configureApi')}</h3>
-          <p>{t('jobSearch.configureApiDesc')}</p>
+          <h3>{source === 'jsearch' ? t('jobSearch.configureJSearchApi') : t('jobSearch.configureApi')}</h3>
+          <p>{source === 'jsearch' ? t('jobSearch.configureJSearchApiDesc') : t('jobSearch.configureApiDesc')}</p>
           <Link to="/settings" className="btn btn-primary" style={{ marginTop: 12 }}>{t('jobSearch.goToSettings')}</Link>
         </div>
       )}
@@ -254,8 +291,18 @@ export default function JobSearch() {
             {jobs.map((job) => (
               <div key={job.adzuna_id} className="card job-card">
                 <div className="job-card-header">
-                  <h3 className="job-card-title">{job.title}</h3>
-                  <span className="job-card-company">{job.company}</span>
+                  {job.employer_logo && (
+                    <img
+                      src={job.employer_logo}
+                      alt=""
+                      className="job-card-logo"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  )}
+                  <div>
+                    <h3 className="job-card-title">{job.title}</h3>
+                    <span className="job-card-company">{job.company}</span>
+                  </div>
                 </div>
 
                 <div className="job-card-meta">
@@ -278,6 +325,16 @@ export default function JobSearch() {
                   {job.category && (
                     <span className="job-meta-item">
                       <span className="material-icon">category</span> {job.category}
+                    </span>
+                  )}
+                  {job.is_remote && (
+                    <span className="job-meta-item job-remote-badge">
+                      <span className="material-icon">home_work</span> {t('jobSearch.remote')}
+                    </span>
+                  )}
+                  {job.contract_type && (
+                    <span className="job-meta-item">
+                      <span className="material-icon">work</span> {job.contract_type}
                     </span>
                   )}
                 </div>

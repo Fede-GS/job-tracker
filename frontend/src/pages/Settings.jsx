@@ -10,9 +10,10 @@ export default function Settings() {
   const { t, i18n } = useTranslation();
   const { addNotification } = useNotification();
   const { theme, toggleTheme } = useTheme();
-  const [form, setForm] = useState({ gemini_api_key: '', adzuna_app_id: '', adzuna_api_key: '', default_currency: 'EUR', language: i18n.language });
+  const [form, setForm] = useState({ gemini_api_key: '', adzuna_app_id: '', adzuna_api_key: '', jsearch_api_key: '', default_currency: 'EUR', language: i18n.language });
   const [showKey, setShowKey] = useState(false);
   const [showAdzunaKey, setShowAdzunaKey] = useState(false);
+  const [showJSearchKey, setShowJSearchKey] = useState(false);
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testResult, setTestResult] = useState(null);
@@ -24,6 +25,7 @@ export default function Settings() {
           gemini_api_key: settings.gemini_api_key || '',
           adzuna_app_id: settings.adzuna_app_id || '',
           adzuna_api_key: settings.adzuna_api_key || '',
+          jsearch_api_key: settings.jsearch_api_key || '',
           default_currency: settings.default_currency || 'EUR',
           language: settings.language || i18n.language,
         });
@@ -140,6 +142,31 @@ export default function Settings() {
               />
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowAdzunaKey(!showAdzunaKey)}>
                 {showAdzunaKey ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="card settings-section">
+          <h3>{t('settings.jsearchApi')}</h3>
+          <p className="settings-desc">
+            {t('settings.jsearchApiDesc')}
+            {' — '}
+            <a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" target="_blank" rel="noopener noreferrer">rapidapi.com</a>
+          </p>
+
+          <div className="form-group">
+            <label>{t('settings.jsearchApiKey')}</label>
+            <div className="api-key-input">
+              <input
+                className="form-input"
+                type={showJSearchKey ? 'text' : 'password'}
+                value={form.jsearch_api_key}
+                onChange={(e) => setForm((p) => ({ ...p, jsearch_api_key: e.target.value }))}
+                placeholder="abc123def456..."
+              />
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowJSearchKey(!showJSearchKey)}>
+                {showJSearchKey ? '🙈' : '👁️'}
               </button>
             </div>
           </div>

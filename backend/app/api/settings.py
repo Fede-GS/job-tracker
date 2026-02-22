@@ -4,7 +4,7 @@ from ..models import Setting
 
 bp = Blueprint('settings', __name__, url_prefix='/api')
 
-ALLOWED_KEYS = ['gemini_api_key', 'adzuna_app_id', 'adzuna_api_key', 'theme', 'default_currency', 'language']
+ALLOWED_KEYS = ['gemini_api_key', 'adzuna_app_id', 'adzuna_api_key', 'jsearch_api_key', 'theme', 'default_currency', 'language']
 
 
 @bp.route('/settings', methods=['GET'])

@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify
 from ..extensions import db
 from ..models import Application, Setting, UserProfile, StatusHistory
 from ..services.adzuna_service import AdzunaService
+from ..services.jsearch_service import JSearchService
 from ..services.gemini_service import GeminiService
 
 bp = Blueprint('job_search', __name__, url_prefix='/api')
@@ -17,6 +18,15 @@ def _get_adzuna_service():
             'error': {'message': 'Adzuna API credentials not configured. Go to Settings to add them.'}
         }), 422
     return AdzunaService(app_id, api_key), None, None
+
+
+def _get_jsearch_service():
+    api_key = Setting.get('jsearch_api_key')
+    if not api_key:
+        return None, jsonify({
+            'error': {'message': 'JSearch API key not configured. Go to Settings to add it.'}
+        }), 422
+    return JSearchService(api_key), None, None
 
 
 def _get_gemini_service():
@@ -84,26 +94,37 @@ Return ONLY valid JSON, no markdown."""
 
 @bp.route('/job-search/search', methods=['GET'])
 def search_jobs():
-    service, error_response, status = _get_adzuna_service()
-    if error_response:
-        return error_response, status
-
+    source = request.args.get('source', 'adzuna').strip()
     q = request.args.get('q', '').strip()
     location = request.args.get('location', '').strip()
-    country = request.args.get('country', 'it').strip()
     page = request.args.get('page', 1, type=int)
 
     if not q:
         return jsonify({'error': {'message': 'Search query (q) is required'}}), 400
 
     try:
-        results = service.search_jobs(
-            query=q,
-            location=location,
-            country=country,
-            page=page,
-            per_page=15,
-        )
+        if source == 'jsearch':
+            service, error_response, status = _get_jsearch_service()
+            if error_response:
+                return error_response, status
+            results = service.search_jobs(
+                query=q,
+                location=location,
+                page=page,
+                per_page=15,
+            )
+        else:
+            service, error_response, status = _get_adzuna_service()
+            if error_response:
+                return error_response, status
+            country = request.args.get('country', 'gb').strip()
+            results = service.search_jobs(
+                query=q,
+                location=location,
+                country=country,
+                page=page,
+                per_page=15,
+            )
         return jsonify(results)
     except Exception as e:
         return jsonify({'error': {'message': f'Search failed: {str(e)}'}}), 500

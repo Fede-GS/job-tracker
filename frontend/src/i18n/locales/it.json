@@ -334,8 +334,14 @@
     "gaps": "Aree di Miglioramento",
     "recommendation": "Raccomandazione",
     "closeAnalysis": "Chiudi",
+    "source": "Fonte",
+    "sourceAdzuna": "Adzuna",
+    "sourceJSearch": "JSearch",
+    "remote": "Remoto",
     "configureApi": "Configura API Adzuna",
     "configureApiDesc": "Per cercare lavori, registrati gratuitamente su developer.adzuna.com e inserisci le credenziali nelle Impostazioni.",
+    "configureJSearchApi": "Configura API JSearch",
+    "configureJSearchApiDesc": "Per cercare lavori in tutto il mondo, ottieni una API key gratuita su rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch e inseriscila nelle Impostazioni.",
     "goToSettings": "Vai alle Impostazioni",
     "smartSearch": "Ricerca Smart",
     "smartSearchTooltip": "Trova offerte basate sul tuo profilo",
@@ -377,7 +383,10 @@
     "adzunaApi": "Adzuna Job Search API",
     "adzunaApiDesc": "Registrati gratuitamente su developer.adzuna.com per ottenere le credenziali",
     "adzunaAppId": "App ID",
-    "adzunaApiKey": "API Key"
+    "adzunaApiKey": "API Key",
+    "jsearchApi": "JSearch API (Globale)",
+    "jsearchApiDesc": "Ottieni una API key gratuita su RapidAPI per cercare lavori in tutto il mondo",
+    "jsearchApiKey": "Chiave RapidAPI"
   },
   "rightPanel": {
     "quickActions": "Azioni Rapide",
@@ -418,7 +427,7 @@
       },
       "jobSearch": {
         "title": "Cerca Lavoro",
-        "desc": "Cerca offerte in 12 paesi. Usa la Ricerca Smart per trovare offerte compatibili con il tuo profilo."
+        "desc": "Cerca lavoro con Adzuna (12 paesi) o JSearch (globale). Usa la Ricerca Smart per suggerimenti AI."
       },
       "newApplication": {
         "title": "Nuova Candidatura",
@@ -448,7 +457,7 @@
       },
       "jobSearch": {
         "title": "Trova Lavoro",
-        "desc": "Cerca offerte in 12 paesi con l'API Adzuna. Usa la Ricerca Smart per suggerimenti AI basati sul tuo profilo."
+        "desc": "Cerca lavoro con Adzuna (12 paesi) o JSearch (tutto il mondo). Cambia fonte e usa la Ricerca Smart per suggerimenti AI."
       },
       "newApplication": {
         "title": "Crea una Candidatura",
@@ -464,7 +473,7 @@
       },
       "settings": {
         "title": "Impostazioni",
-        "desc": "Imposta la Google Gemini API key per le funzionalità AI, configura l'API Adzuna per la ricerca lavoro, scegli lingua e tema."
+        "desc": "Imposta la Google Gemini API key per l'AI, configura le API Adzuna e JSearch per la ricerca lavoro, scegli lingua e tema."
       }
     }
   }
