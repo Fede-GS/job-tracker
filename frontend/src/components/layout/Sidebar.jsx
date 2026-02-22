@@ -14,7 +14,7 @@ const navItems = [
   { to: '/settings', icon: 'settings', labelKey: 'sidebar.settings' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onReplayTutorial }) {
   const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
@@ -29,8 +29,8 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-header">
         <div className="sidebar-logo">
-          <span className="logo-icon">JT</span>
-          <span className="logo-text">Job Tracker</span>
+          <img src="/logo2.png" alt="FinixJob" className="logo-icon" />
+          <span className="logo-text">FinixJob</span>
         </div>
       </div>
 
@@ -41,6 +41,7 @@ export default function Sidebar() {
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            data-nav={item.to}
           >
             <span className="material-icon">{item.icon}</span>
             <span>{t(item.labelKey)}</span>
@@ -55,6 +56,10 @@ export default function Sidebar() {
             <span className="sidebar-user-name">{user.full_name || user.email}</span>
           </div>
         )}
+        <button className="theme-toggle" onClick={onReplayTutorial}>
+          <span className="material-icon">school</span>
+          <span>{t('sidebar.replayTutorial')}</span>
+        </button>
         <button className="theme-toggle" onClick={toggleTheme}>
           <span className="material-icon">
             {theme === 'light' ? 'dark_mode' : 'light_mode'}

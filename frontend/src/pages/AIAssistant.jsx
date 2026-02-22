@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { getApplications } from '../api/applications';
 import { generateCV, generateCoverLetter, improveText } from '../api/ai';
 import { useNotification } from '../context/NotificationContext';
+import PageTutorial from '../components/common/PageTutorial';
 import './AIAssistant.css';
 
 export default function AIAssistant() {
@@ -93,6 +94,7 @@ export default function AIAssistant() {
 
   return (
     <div className="ai-page">
+      <PageTutorial pageKey="aiAssistant" icon="smart_toy" />
       <div className="page-header">
         <h1>{t('sidebar.aiAssistant')}</h1>
         <p>{t('chat.title')}</p>

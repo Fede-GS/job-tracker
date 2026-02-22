@@ -1,10 +1,10 @@
 @echo off
-title Job Tracker - Stop
+title FinixJob - Stop
 color 0C
 
 echo.
 echo  ========================================
-echo        JOB TRACKER v2 - Stop
+echo        FINIXJOB - Stop
 echo  ========================================
 echo.
 
@@ -19,6 +19,6 @@ for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5173 ^| findstr LISTENING') 
 )
 
 echo.
-echo  [OK] Job Tracker fermato.
+echo  [OK] FinixJob fermato.
 echo.
 timeout /t 2 /nobreak >nul

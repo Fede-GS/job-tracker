@@ -56,7 +56,8 @@
     "newApplication": "Nuova Candidatura",
     "profile": "Profilo",
     "aiAssistant": "Assistente AI",
-    "settings": "Impostazioni"
+    "settings": "Impostazioni",
+    "replayTutorial": "Rivedi Tutorial"
   },
   "statuses": {
     "draft": "Bozza",
@@ -339,44 +340,17 @@
     "viewOriginal": "Vedi Annuncio",
     "country": "Paese",
     "countries": {
-      "it": "Italia",
       "gb": "Regno Unito",
+      "us": "Stati Uniti",
       "de": "Germania",
       "fr": "Francia",
-      "es": "Spagna",
-      "nl": "Paesi Bassi",
-      "at": "Austria",
-      "ch": "Svizzera",
-      "be": "Belgio",
-      "pl": "Polonia",
-      "se": "Svezia",
-      "no": "Norvegia",
-      "dk": "Danimarca",
-      "fi": "Finlandia",
-      "ie": "Irlanda",
-      "pt": "Portogallo",
-      "cz": "Repubblica Ceca",
-      "ro": "Romania",
-      "hu": "Ungheria",
-      "bg": "Bulgaria",
-      "hr": "Croazia",
-      "sk": "Slovacchia",
-      "si": "Slovenia",
-      "lt": "Lituania",
-      "lv": "Lettonia",
-      "ee": "Estonia",
-      "lu": "Lussemburgo",
-      "mt": "Malta",
-      "cy": "Cipro",
-      "gr": "Grecia",
-      "us": "Stati Uniti",
-      "ca": "Canada",
       "au": "Australia",
       "nz": "Nuova Zelanda",
-      "br": "Brasile",
-      "mx": "Messico",
+      "ca": "Canada",
       "in": "India",
-      "sg": "Singapore",
+      "pl": "Polonia",
+      "br": "Brasile",
+      "at": "Austria",
       "za": "Sudafrica"
     },
     "matchScore": "Match Score",
@@ -384,8 +358,14 @@
     "gaps": "Aree di Miglioramento",
     "recommendation": "Raccomandazione",
     "closeAnalysis": "Chiudi",
+    "source": "Fonte",
+    "sourceAdzuna": "Adzuna",
+    "sourceJSearch": "JSearch",
+    "remote": "Remoto",
     "configureApi": "Configura API Adzuna",
     "configureApiDesc": "Per cercare lavori, registrati gratuitamente su developer.adzuna.com e inserisci le credenziali nelle Impostazioni.",
+    "configureJSearchApi": "Configura API JSearch",
+    "configureJSearchApiDesc": "Per cercare lavori in tutto il mondo, ottieni una API key gratuita su rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch e inseriscila nelle Impostazioni.",
     "goToSettings": "Vai alle Impostazioni",
     "smartSearch": "Ricerca Smart",
     "smartSearchTooltip": "Trova offerte basate sul tuo profilo",
@@ -430,7 +410,10 @@
     "adzunaApi": "Adzuna Job Search API",
     "adzunaApiDesc": "Registrati gratuitamente su developer.adzuna.com per ottenere le credenziali",
     "adzunaAppId": "App ID",
-    "adzunaApiKey": "API Key"
+    "adzunaApiKey": "API Key",
+    "jsearchApi": "JSearch API (Globale)",
+    "jsearchApiDesc": "Ottieni una API key gratuita su RapidAPI per cercare lavori in tutto il mondo",
+    "jsearchApiKey": "Chiave RapidAPI"
   },
   "rightPanel": {
     "quickActions": "Azioni Rapide",
@@ -447,5 +430,78 @@
     "tip2": "Prova la Ricerca Smart per suggerimenti basati su AI",
     "tip3": "Analizza il tuo match score prima di candidarti",
     "aiActions": "Azioni AI"
+  },
+  "tutorial": {
+    "welcomeTitle": "Benvenuto su FinixJob!",
+    "welcomeDesc": "Il tuo tracker di candidature potenziato dall'AI. Vuoi fare un tour veloce?",
+    "startTour": "Sì, mostrami tutto",
+    "skipTour": "Salta per ora",
+    "next": "Avanti",
+    "previous": "Indietro",
+    "finish": "Inizia",
+    "stepOf": "di",
+    "finishTitle": "Tutto Pronto!",
+    "finishDesc": "Inizia aggiungendo la tua prima candidatura o cercando offerte. Puoi rivedere questo tour dalla sidebar.",
+    "gotIt": "Ho capito",
+    "tour": {
+      "dashboard": {
+        "title": "Dashboard",
+        "desc": "Il tuo centro di comando. Statistiche, tasso di risposta, grafici timeline, scadenze e suggerimenti di follow-up."
+      },
+      "applications": {
+        "title": "Candidature",
+        "desc": "Tieni traccia di tutte le candidature. Passa tra vista lista, calendario, settimana e giorno."
+      },
+      "jobSearch": {
+        "title": "Cerca Lavoro",
+        "desc": "Cerca lavoro con Adzuna (12 paesi) o JSearch (globale). Usa la Ricerca Smart per suggerimenti AI."
+      },
+      "newApplication": {
+        "title": "Nuova Candidatura",
+        "desc": "Workflow AI in 6 step: incolla un annuncio, ottieni analisi di compatibilità, genera CV e lettera personalizzati."
+      },
+      "profile": {
+        "title": "Profilo",
+        "desc": "Gestisci le tue info professionali. Carica il CV per abilitare tutte le funzionalità AI."
+      },
+      "aiAssistant": {
+        "title": "Assistente AI",
+        "desc": "Genera CV, lettere di presentazione e migliora i testi con l'AI. Il tuo assistente di carriera."
+      },
+      "settings": {
+        "title": "Impostazioni",
+        "desc": "Configura le API key, l'aspetto, la lingua e altre preferenze."
+      }
+    },
+    "page": {
+      "dashboard": {
+        "title": "Panoramica Dashboard",
+        "desc": "Qui puoi vedere le statistiche delle candidature, distribuzione per stato, timeline, scadenze e suggerimenti di follow-up."
+      },
+      "applications": {
+        "title": "Le Tue Candidature",
+        "desc": "Visualizza e gestisci le candidature. Usa i filtri per cercare per azienda o stato, e passa tra lista, calendario, settimana e giorno."
+      },
+      "jobSearch": {
+        "title": "Trova Lavoro",
+        "desc": "Cerca lavoro con Adzuna (12 paesi) o JSearch (tutto il mondo). Cambia fonte e usa la Ricerca Smart per suggerimenti AI."
+      },
+      "newApplication": {
+        "title": "Crea una Candidatura",
+        "desc": "Segui il wizard in 6 step: incolla un annuncio, analizza il match, decidi se candidarti, genera CV e lettera, poi salva."
+      },
+      "aiAssistant": {
+        "title": "Assistente AI",
+        "desc": "Usa l'AI per generare CV, lettere di presentazione o migliorare testi. Seleziona una candidatura e scegli cosa creare."
+      },
+      "profile": {
+        "title": "Il Tuo Profilo",
+        "desc": "Compila le tue informazioni professionali o carica il CV per estrarre i dati automaticamente. Questo profilo alimenta tutte le funzionalità AI."
+      },
+      "settings": {
+        "title": "Impostazioni",
+        "desc": "Imposta la Google Gemini API key per l'AI, configura le API Adzuna e JSearch per la ricerca lavoro, scegli lingua e tema."
+      }
+    }
   }
 }

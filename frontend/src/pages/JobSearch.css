@@ -1,3 +1,57 @@
+/* ── Source toggle ── */
+.job-source-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.source-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.source-pill.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.source-pill .material-icon {
+  font-size: 18px;
+}
+
+.source-pill-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+}
+
+.source-pill.active .source-pill-badge {
+  background: var(--accent);
+  color: white;
+}
+
 /* ── Search bar ── */
 .job-search-bar {
   display: flex;
@@ -133,7 +187,20 @@
 }
 
 .job-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   margin-bottom: 10px;
+}
+
+.job-card-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  object-fit: contain;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
 }
 
 .job-card-title {
@@ -177,6 +244,19 @@
 
 .job-salary .material-icon {
   color: var(--success) !important;
+}
+
+.job-remote-badge {
+  color: var(--accent) !important;
+  font-weight: 500;
+  padding: 2px 8px;
+  background: var(--accent-light);
+  border-radius: 12px;
+}
+
+.job-remote-badge .material-icon {
+  color: var(--accent) !important;
+  font-size: 14px;
 }
 
 .job-card-description {
@@ -363,5 +443,9 @@
 
   .smart-suggestions-label {
     padding-top: 0;
+  }
+
+  .source-pill-badge {
+    display: none;
   }
 }

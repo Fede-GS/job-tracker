@@ -10,6 +10,7 @@ import RichTextEditor from '../components/editor/RichTextEditor';
 import ChatSidebar from '../components/chat/ChatSidebar';
 import CelebrationOverlay from '../components/common/CelebrationOverlay';
 import { useMilestones } from '../hooks/useMilestones';
+import PageTutorial from '../components/common/PageTutorial';
 import './NewApplication.css';
 
 const STEPS = ['paste', 'match', 'decide', 'cv', 'coverLetter', 'summary'];
@@ -178,6 +179,7 @@ export default function NewApplication() {
 
   return (
     <div className="new-application-page">
+      <PageTutorial pageKey="newApplication" icon="add_circle" />
       <div className="wizard-main">
         {/* Step Indicator */}
         <div className="step-indicator">

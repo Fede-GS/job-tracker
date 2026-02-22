@@ -1,3 +1,4 @@
+import { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
@@ -8,6 +9,7 @@ import RightPanel from './components/layout/RightPanel';
 import Toast from './components/common/Toast';
 import PageTransition from './components/common/PageTransition';
 import OnboardingGuard from './components/common/OnboardingGuard';
+import TutorialOverlay from './components/common/TutorialOverlay';
 import Dashboard from './pages/Dashboard';
 import ApplicationsList from './pages/ApplicationsList';
 import NewApplication from './pages/NewApplication';
@@ -56,8 +58,33 @@ function PublicRoute({ children }) {
   return children;
 }
 
+// Page keys that have page-level tutorial tips
+const PAGE_TUTORIAL_KEYS = [
+  'dashboard', 'applications', 'jobSearch',
+  'newApplication', 'profile', 'aiAssistant', 'settings',
+];
+
 function AppLayout() {
   const location = useLocation();
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Auto-show tutorial on first visit
+  useEffect(() => {
+    const completed = localStorage.getItem('tutorial_completed');
+    if (!completed) {
+      const timer = setTimeout(() => setShowTutorial(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Replay tutorial: also clear page-level tutorial flags
+  const handleReplayTutorial = useCallback(() => {
+    localStorage.removeItem('tutorial_completed');
+    PAGE_TUTORIAL_KEYS.forEach((key) => {
+      localStorage.removeItem(`tutorial_page_${key}`);
+    });
+    setShowTutorial(true);
+  }, []);
 
   const getRightPanelPage = () => {
     if (location.pathname === '/') return 'dashboard';
@@ -72,7 +99,7 @@ function AppLayout() {
   return (
     <OnboardingGuard>
       <div className="app-layout">
-        <Sidebar />
+        <Sidebar onReplayTutorial={handleReplayTutorial} />
         <main className="main-content">
           <PageTransition>
             <Outlet />
@@ -80,6 +107,10 @@ function AppLayout() {
         </main>
         {rightPanelPage && <RightPanel page={rightPanelPage} />}
         <Toast />
+        <TutorialOverlay
+          isOpen={showTutorial}
+          onClose={() => setShowTutorial(false)}
+        />
       </div>
     </OnboardingGuard>
   );

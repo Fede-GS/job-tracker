@@ -10,6 +10,7 @@ import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/common/Modal';
 import { SkeletonBlock, SkeletonStatCard, SkeletonChartCard } from '../components/common/Skeleton';
 import SmartTip from '../components/common/SmartTip';
+import PageTutorial from '../components/common/PageTutorial';
 import './Dashboard.css';
 
 const COLORS = {
@@ -138,6 +139,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
+      <PageTutorial pageKey="dashboard" icon="dashboard" />
       <div className="page-header">
         <h1>{t('dashboard.title')}</h1>
         <p>{t('dashboard.subtitle')}</p>

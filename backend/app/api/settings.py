@@ -7,7 +7,7 @@ from ..utils.auth_helpers import get_current_user_id
 
 bp = Blueprint('settings', __name__, url_prefix='/api')
 
-ALLOWED_KEYS = ['theme', 'default_currency', 'language']
+ALLOWED_KEYS = ['jsearch_api_key', 'theme', 'default_currency', 'language']
 
 
 @bp.route('/settings', methods=['GET'])

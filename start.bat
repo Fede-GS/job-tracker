@@ -1,10 +1,10 @@
 @echo off
-title Job Tracker - Avvio
+title FinixJob - Avvio
 color 0A
 
 echo.
 echo  ========================================
-echo        JOB TRACKER v2 - Avvio
+echo        FINIXJOB - Avvio
 echo  ========================================
 echo.
 
@@ -70,7 +70,7 @@ start http://localhost:5173
 
 echo.
 echo  ========================================
-echo   Job Tracker in esecuzione!
+echo   FinixJob in esecuzione!
 echo.
 echo   Per chiudere: chiudi le finestre
 echo   Backend (blu) e Frontend (gialla)

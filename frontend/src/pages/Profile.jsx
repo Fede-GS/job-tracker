@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useProfile } from '../context/ProfileContext';
 import { useNotification } from '../context/NotificationContext';
 import { updateProfile, uploadCV, extractCvProfile } from '../api/profile';
+import PageTutorial from '../components/common/PageTutorial';
 import './Profile.css';
 
 export default function Profile() {
@@ -91,6 +92,7 @@ export default function Profile() {
   };
   return (
     <div className="profile-page">
+      <PageTutorial pageKey="profile" icon="person" />
       <div className="page-header">
         <div>
           <h1>{t('profile.title')}</h1>

@@ -13,6 +13,7 @@ import WeekView from '../components/applications/WeekView';
 import DayView from '../components/applications/DayView';
 import { STATUS_CONFIG } from '../components/applications/StatusBadge';
 import { SkeletonAppCard } from '../components/common/Skeleton';
+import PageTutorial from '../components/common/PageTutorial';
 import './ApplicationsList.css';
 
 const VIEW_MODES = [
@@ -125,6 +126,7 @@ export default function ApplicationsList() {
 
   return (
     <div className="apps-list-page">
+      <PageTutorial pageKey="applications" icon="list" />
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1>{t('applications.title')}</h1>
