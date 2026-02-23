@@ -162,6 +162,73 @@
   color: var(--accent);
 }
 
+/* ── Import CTA ── */
+.job-import-cta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--accent-light) 0%, color-mix(in srgb, var(--accent) 8%, var(--bg-card)) 100%);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--radius-lg);
+  animation: fadeInUp 0.3s ease;
+}
+
+.job-import-cta-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.job-import-cta-icon .material-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.job-import-cta-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.job-import-cta-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+}
+
+.job-import-cta-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.job-import-cta .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .job-import-cta {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .job-import-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ── Results count ── */
 .job-results-count {
   font-size: 13px;

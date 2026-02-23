@@ -503,6 +503,118 @@
   margin-top: 12px;
 }
 
+/* ── Interview Events ── */
+.interview-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.interview-event-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  border-left: 4px solid var(--text-muted);
+  transition: all var(--transition);
+}
+
+.interview-event-card:hover {
+  box-shadow: var(--shadow);
+}
+
+.interview-event-card.outcome-pending { border-left-color: var(--warning); }
+.interview-event-card.outcome-passed  { border-left-color: var(--success); }
+.interview-event-card.outcome-failed  { border-left-color: var(--error); }
+.interview-event-card.outcome-offer   { border-left-color: #8b5cf6; }
+
+.interview-event-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.interview-event-phase {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.interview-event-phase .material-icon {
+  font-size: 18px;
+  color: #8b5cf6;
+}
+
+.interview-outcome-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.interview-outcome-badge.pending { background: color-mix(in srgb, var(--warning) 15%, transparent); color: var(--warning); }
+.interview-outcome-badge.passed  { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
+.interview-outcome-badge.failed  { background: color-mix(in srgb, var(--error) 15%, transparent); color: var(--error); }
+.interview-outcome-badge.offer   { background: color-mix(in srgb, #8b5cf6 15%, transparent); color: #8b5cf6; }
+
+.interview-event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.interview-event-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.interview-event-meta .material-icon {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.interview-event-salary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--success);
+  margin-bottom: 8px;
+}
+
+.interview-event-salary .material-icon {
+  font-size: 16px;
+}
+
+.interview-event-notes {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+}
+
+.interview-event-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+
 /* ── Interview Prep ── */
 .interview-prep-content {
   display: flex;

@@ -253,6 +253,21 @@ export default function JobSearch() {
         </div>
       )}
 
+      {/* Import from other platforms CTA */}
+      <div className="job-import-cta">
+        <div className="job-import-cta-icon">
+          <span className="material-icon">content_paste_go</span>
+        </div>
+        <div className="job-import-cta-content">
+          <h3 className="job-import-cta-title">{t('jobSearch.importTitle')}</h3>
+          <p className="job-import-cta-desc">{t('jobSearch.importDesc')}</p>
+        </div>
+        <button className="btn btn-primary" onClick={() => navigate('/applications/new')}>
+          <span className="material-icon" style={{ fontSize: 18 }}>content_paste</span>
+          {t('jobSearch.importButton')}
+        </button>
+      </div>
+
       {/* API not configured */}
       {apiNotConfigured && (
         <div className="card job-search-empty">

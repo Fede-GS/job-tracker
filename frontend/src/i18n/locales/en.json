@@ -103,7 +103,21 @@
     "followupBody": "Body",
     "followupTips": "Tips",
     "copyFollowup": "Copy Email",
-    "followupCopied": "Email copied!"
+    "followupCopied": "Email copied!",
+    "howItWorks": {
+      "title": "How FinixJob Works",
+      "step1Title": "Search for Jobs",
+      "step1Desc": "Browse on Indeed, LinkedIn, Glassdoor, InfoJobs or any other platform",
+      "step2Title": "Copy the Posting",
+      "step2Desc": "Select and copy the full job description text",
+      "step3Title": "Paste Here",
+      "step3Desc": "Go to New Application and paste the job posting",
+      "step4Title": "AI Does the Rest",
+      "step4Desc": "Match analysis, tailored CV and cover letter in seconds",
+      "quickLinks": "Quick Links",
+      "startNow": "Start Now",
+      "dontShowAgain": "Don't show again"
+    }
   },
   "applications": {
     "title": "Applications",
@@ -320,6 +334,72 @@
     "coverLetter": "Cover Letter",
     "other": "Other"
   },
+  "interviews": {
+    "tabTitle": "Interviews",
+    "addInterview": "Add Interview",
+    "editInterview": "Edit Interview",
+    "date": "Date & Time",
+    "phase": "Phase",
+    "phaseLabel": "Phase {{n}}",
+    "type": "Type",
+    "types": {
+      "phone_screen": "Phone Screen",
+      "technical": "Technical",
+      "behavioral": "Behavioral",
+      "final": "Final",
+      "other": "Other"
+    },
+    "outcome": "Outcome",
+    "outcomes": {
+      "pending": "Pending",
+      "passed": "Passed",
+      "failed": "Not Passed",
+      "offer": "Offer Received"
+    },
+    "location": "Location",
+    "locationPlaceholder": "e.g. Remote — Zoom, On-site",
+    "salaryOffered": "Salary Offered",
+    "salaryPlaceholder": "e.g. 40K-45K EUR",
+    "notes": "Notes",
+    "notesPlaceholder": "How did it go? Key topics discussed...",
+    "noInterviews": "No interviews scheduled yet"
+  },
+  "floatingAI": {
+    "placeholder": "Ask Finix something...",
+    "thinking": "Finix is thinking...",
+    "errorMessage": "Oops, something went wrong. Try again!",
+    "suggestGeneral1": "How to improve my CV?",
+    "suggestGeneral2": "Common interview mistakes?",
+    "welcome": {
+      "general": "Hey! I'm Finix, your AI career assistant. I can help you with CVs, cover letters, interview prep and much more. What can I do for you?",
+      "dashboard": "Hey! I'm Finix. Here you can see your stats at a glance. Want me to help you analyze your progress or suggest next steps?",
+      "applications": "Hi! I'm Finix. Browsing your applications? I can help you decide which ones to follow up on or prepare for interviews.",
+      "newApplication": "Hi! I'm Finix. Paste a job posting and I'll help you analyze the match with your profile, then generate a tailored CV and cover letter!",
+      "jobSearch": "Hey! I'm Finix. Looking for jobs? I can help you refine your search or analyze how well a posting matches your profile.",
+      "profile": "Hi! I'm Finix. A complete profile unlocks all AI features. Need help writing your professional summary or describing your experience?",
+      "settings": "Hi! I'm Finix. Need help configuring the APIs? I can guide you through the setup step by step.",
+      "aiAssistant": "Hey! I'm Finix. Here you can generate CVs, cover letters and more. Select an application and tell me what you need!",
+      "applicationDetail": "Hi! I'm Finix. I can help you with this application — prepare for the interview, improve your CV, or draft a follow-up email."
+    },
+    "tips": {
+      "general": ["How to improve my CV?", "Common interview mistakes?"],
+      "dashboard": ["Analyze my application stats", "What should I do next?"],
+      "applications": ["Which applications need follow-up?", "How to track interviews better?"],
+      "newApplication": ["Tips for pasting a job posting", "What makes a good match score?"],
+      "jobSearch": ["How to search effectively?", "What keywords should I use?"],
+      "profile": ["Help me write my summary", "How to describe my experience?"],
+      "settings": ["How to get a Gemini API key?", "How to set up Adzuna?"],
+      "aiAssistant": ["Generate a tailored CV", "Write a cover letter"],
+      "applicationDetail": ["Prepare me for the interview", "Draft a follow-up email"]
+    }
+  },
+  "timeline": {
+    "created": "Application Created",
+    "statusChange": "Status Changed",
+    "documentUploaded": "Document Uploaded",
+    "reminder": "Reminder",
+    "empty": "No events in the timeline yet"
+  },
   "jobSearch": {
     "title": "Job Search",
     "subtitle": "Find job offers and analyze your profile match",
@@ -369,7 +449,10 @@
     "goToSettings": "Go to Settings",
     "smartSearch": "Smart Search",
     "smartSearchTooltip": "Find offers based on your profile",
-    "suggestedSearches": "Suggested searches:"
+    "suggestedSearches": "Suggested searches:",
+    "importTitle": "Found a job on another platform?",
+    "importDesc": "Copy the full job posting from LinkedIn, Indeed, Glassdoor or any other site and paste it here to let AI analyze your match, generate a tailored CV and cover letter.",
+    "importButton": "Paste a Job Posting"
   },
   "milestones": {
     "first": "First Step!",

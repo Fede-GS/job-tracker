@@ -113,6 +113,7 @@ class Application(db.Model):
     documents = db.relationship('Document', backref='application', cascade='all, delete-orphan', order_by='Document.uploaded_at.desc()')
     reminders = db.relationship('Reminder', backref='application', cascade='all, delete-orphan', order_by='Reminder.remind_at')
     chat_messages = db.relationship('ChatMessage', backref='application', cascade='all, delete-orphan', order_by='ChatMessage.created_at')
+    interview_events = db.relationship('InterviewEvent', backref='application', cascade='all, delete-orphan', order_by='InterviewEvent.interview_date')
 
     VALID_STATUSES = ['draft', 'sent', 'interview', 'rejected']
 
@@ -272,3 +273,39 @@ class Setting(db.Model):
             db.session.add(setting)
         db.session.commit()
         return setting
+
+
+class InterviewEvent(db.Model):
+    __tablename__ = 'interview_events'
+
+    id = db.Column(db.Integer, primary_key=True)
+    application_id = db.Column(db.Integer, db.ForeignKey('applications.id'), nullable=False)
+    interview_date = db.Column(db.DateTime, nullable=False)
+    interview_type = db.Column(db.String(50))
+    phase_number = db.Column(db.Integer, default=1)
+    location = db.Column(db.String(300))
+    notes = db.Column(db.Text)
+    outcome = db.Column(db.String(30), default='pending')
+    salary_offered = db.Column(db.String(100))
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    VALID_TYPES = ['phone_screen', 'technical', 'behavioral', 'final', 'other']
+    VALID_OUTCOMES = ['pending', 'passed', 'failed', 'offer']
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'application_id': self.application_id,
+            'interview_date': self.interview_date.isoformat() if self.interview_date else None,
+            'interview_type': self.interview_type,
+            'phase_number': self.phase_number,
+            'location': self.location,
+            'notes': self.notes,
+            'outcome': self.outcome,
+            'salary_offered': self.salary_offered,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'company': self.application.company if self.application else None,
+            'role': self.application.role if self.application else None,
+        }

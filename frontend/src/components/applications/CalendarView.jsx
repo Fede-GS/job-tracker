@@ -9,7 +9,7 @@ import './CalendarView.css';
 
 const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
-export default function CalendarView({ apps, currentDate, onDateClick, onAppClick }) {
+export default function CalendarView({ apps, currentDate, onDateClick, onAppClick, interviews = [], onInterviewClick }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language === 'it' ? it : enUS;
 
@@ -37,6 +37,18 @@ export default function CalendarView({ apps, currentDate, onDateClick, onAppClic
     return map;
   }, [apps]);
 
+  const interviewsByDate = useMemo(() => {
+    const map = {};
+    interviews.forEach((ie) => {
+      const key = ie.interview_date ? ie.interview_date.slice(0, 10) : null;
+      if (key) {
+        if (!map[key]) map[key] = [];
+        map[key].push(ie);
+      }
+    });
+    return map;
+  }, [interviews]);
+
   return (
     <div className="calendar-view">
       <div className="calendar-header-row">
@@ -54,6 +66,9 @@ export default function CalendarView({ apps, currentDate, onDateClick, onAppClic
             const sameMonth = isSameMonth(day, currentDate);
             const today = isToday(day);
 
+            const dayInterviews = interviewsByDate[dateKey] || [];
+            const totalItems = dayApps.length + dayInterviews.length;
+
             return (
               <div
                 key={dateKey}
@@ -62,7 +77,17 @@ export default function CalendarView({ apps, currentDate, onDateClick, onAppClic
               >
                 <span className="calendar-day-number">{format(day, 'd')}</span>
                 <div className="calendar-day-apps">
-                  {dayApps.slice(0, 3).map((app) => (
+                  {dayInterviews.slice(0, 2).map((ie) => (
+                    <div
+                      key={`ie-${ie.id}`}
+                      className="calendar-app-pill calendar-interview-pill"
+                      onClick={(e) => { e.stopPropagation(); onInterviewClick && onInterviewClick(ie.application_id); }}
+                      title={`${t('interviews.tabTitle')} — ${ie.company}`}
+                    >
+                      <span className="pill-company">{ie.company}</span>
+                    </div>
+                  ))}
+                  {dayApps.slice(0, Math.max(1, 3 - dayInterviews.length)).map((app) => (
                     <div
                       key={app.id}
                       className={`calendar-app-pill ${app.status}`}
@@ -72,8 +97,8 @@ export default function CalendarView({ apps, currentDate, onDateClick, onAppClic
                       <span className="pill-company">{app.company}</span>
                     </div>
                   ))}
-                  {dayApps.length > 3 && (
-                    <div className="calendar-day-more">+{dayApps.length - 3}</div>
+                  {totalItems > 3 && (
+                    <div className="calendar-day-more">+{totalItems - 3}</div>
                   )}
                 </div>
               </div>

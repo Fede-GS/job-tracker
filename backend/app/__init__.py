@@ -44,7 +44,7 @@ def create_app():
         return jsonify({'error': {'message': 'Token verification failed'}, 'msg': 'Token verification failed'}), 401
 
     # Register blueprints
-    from .api import applications, documents, reminders, ai, dashboard, settings, profile, job_search, auth
+    from .api import applications, documents, reminders, ai, dashboard, settings, profile, job_search, auth, interviews
     app.register_blueprint(auth.bp)
     app.register_blueprint(applications.bp)
     app.register_blueprint(documents.bp)
@@ -54,6 +54,7 @@ def create_app():
     app.register_blueprint(settings.bp)
     app.register_blueprint(profile.bp)
     app.register_blueprint(job_search.bp)
+    app.register_blueprint(interviews.bp)
 
     # Serve React frontend in production
     static_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '..', 'frontend', 'dist')

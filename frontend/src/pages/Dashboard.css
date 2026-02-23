@@ -3,6 +3,238 @@
 }
 
 
+/* ── How it works guide ── */
+.how-it-works {
+  background: var(--bg-card);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.4s ease;
+}
+
+.how-it-works-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.how-it-works-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.how-it-works-header h3::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  background: var(--gradient-accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.how-it-works-steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 20px;
+}
+
+.how-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  max-width: 170px;
+  animation: fadeInUp 0.4s ease backwards;
+}
+
+.how-step:nth-child(1) { animation-delay: 0s; }
+.how-step:nth-child(3) { animation-delay: 0.1s; }
+.how-step:nth-child(5) { animation-delay: 0.2s; }
+.how-step:nth-child(7) { animation-delay: 0.3s; }
+
+.how-step-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.how-step-icon .material-icon {
+  font-size: 26px;
+  color: white;
+}
+
+.how-step h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.how-step p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.how-step-arrow {
+  display: flex;
+  align-items: center;
+  padding-top: 18px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.how-step-arrow .material-icon {
+  font-size: 22px;
+  animation: howArrowPulse 2s ease-in-out infinite;
+}
+
+@keyframes howArrowPulse {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(3px); }
+}
+
+.how-it-works-platforms {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.how-platforms-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.how-platforms-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.how-platform-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all var(--transition);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.how-platform-link:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.how-platform-link span {
+  font-size: 11px;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.how-platform-link.linkedin span { background: #0077B5; }
+.how-platform-link.indeed span { background: #2164f3; }
+.how-platform-link.glassdoor span { background: #0caa41; }
+.how-platform-link.infojobs span { background: #ff6600; }
+
+.how-platform-link.linkedin:hover { border-color: #0077B5; color: #0077B5; }
+.how-platform-link.indeed:hover { border-color: #2164f3; color: #2164f3; }
+.how-platform-link.glassdoor:hover { border-color: #0caa41; color: #0caa41; }
+.how-platform-link.infojobs:hover { border-color: #ff6600; color: #ff6600; }
+
+.how-it-works-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.how-it-works-footer .btn-primary {
+  gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .how-it-works-steps {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .how-step {
+    max-width: 100%;
+    flex-direction: row;
+    text-align: left;
+    gap: 12px;
+  }
+
+  .how-step-icon {
+    margin-bottom: 0;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .how-step-icon .material-icon {
+    font-size: 22px;
+  }
+
+  .how-step-arrow {
+    padding-top: 0;
+    transform: rotate(90deg);
+  }
+
+  .how-it-works-platforms {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .how-it-works-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .how-it-works-footer .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
