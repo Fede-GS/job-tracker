@@ -1,0 +1,235 @@
+/* ── Unified Timeline ── */
+.unified-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 0;
+}
+
+/* ── Single event row ── */
+.ut-event {
+  display: flex;
+  gap: 16px;
+  position: relative;
+}
+
+.ut-event.clickable {
+  cursor: pointer;
+}
+
+.ut-event.clickable:hover .ut-content {
+  background: var(--bg-secondary);
+  border-color: var(--accent);
+}
+
+/* ── Left line + dot ── */
+.ut-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 36px;
+}
+
+.ut-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.ut-dot .material-icon {
+  font-size: 18px;
+  color: #fff;
+}
+
+.ut-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 16px;
+  background: var(--border);
+}
+
+/* ── Right content card ── */
+.ut-content {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  transition: all var(--transition);
+}
+
+.ut-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ut-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ut-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Status change row ── */
+.ut-status-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.ut-arrow {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.ut-dash {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ut-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: 8px;
+  font-style: italic;
+}
+
+/* ── Interview info ── */
+.ut-interview-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.ut-salary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.ut-salary .material-icon {
+  font-size: 14px;
+}
+
+/* ── Description text ── */
+.ut-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 4px 0 0;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ut-desc.dismissed {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* ── Interview outcome badge (reuse from detail) ── */
+.ut-interview-info .interview-outcome-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.interview-outcome-badge.pending {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.interview-outcome-badge.passed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.interview-outcome-badge.failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.interview-outcome-badge.offer {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+[data-theme="dark"] .interview-outcome-badge.pending {
+  background: #854d0e;
+  color: #fef9c3;
+}
+
+[data-theme="dark"] .interview-outcome-badge.passed {
+  background: #14532d;
+  color: #86efac;
+}
+
+[data-theme="dark"] .interview-outcome-badge.failed {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+[data-theme="dark"] .interview-outcome-badge.offer {
+  background: #3b1f7e;
+  color: #c4b5fd;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .ut-event {
+    gap: 10px;
+  }
+
+  .ut-line {
+    width: 28px;
+  }
+
+  .ut-dot {
+    width: 28px;
+    height: 28px;
+  }
+
+  .ut-dot .material-icon {
+    font-size: 14px;
+  }
+
+  .ut-content {
+    padding: 8px 12px;
+  }
+
+  .ut-header {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ut-title {
+    font-size: 12px;
+  }
+}

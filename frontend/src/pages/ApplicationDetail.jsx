@@ -6,10 +6,13 @@ import { uploadDocument, deleteDocument } from '../api/documents';
 import { createReminder, dismissReminder, deleteReminder } from '../api/reminders';
 import { summarizeApplication, generateInterviewPrep, tailorCvTemplate } from '../api/ai';
 import { generatePdf } from '../api/profile';
+import { createInterview, updateInterview, deleteInterview } from '../api/interviews';
 import { useNotification } from '../context/NotificationContext';
 import ApplicationForm from '../components/applications/ApplicationForm';
 import StatusSelect from '../components/applications/StatusSelect';
 import StatusBadge from '../components/applications/StatusBadge';
+import InterviewForm from '../components/applications/InterviewForm';
+import UnifiedTimeline from '../components/applications/UnifiedTimeline';
 import FileUpload from '../components/documents/FileUpload';
 import FileList from '../components/documents/FileList';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -64,6 +67,10 @@ export default function ApplicationDetail() {
   const [generatingPrep, setGeneratingPrep] = useState(false);
   const [expandedSections, setExpandedSections] = useState({ questions: true, star: true, tips: true, advice: true });
 
+  // Interview tracking state
+  const [showInterviewForm, setShowInterviewForm] = useState(false);
+  const [editingInterview, setEditingInterview] = useState(null);
+
   const fetchApp = () => {
     getApplication(id)
       .then(({ application }) => setApp(application))
@@ -77,12 +84,46 @@ export default function ApplicationDetail() {
     try {
       const { application } = await changeStatus(id, { status: newStatus });
       setApp((prev) => ({ ...prev, ...application }));
-      if (newStatus !== 'interview' && activeTab === 'interviewPrep') {
+      if (newStatus === 'interview') {
+        setActiveTab('interviews');
+        setShowInterviewForm(true);
+      } else if (activeTab === 'interviewPrep' || activeTab === 'interviews') {
         setActiveTab('overview');
       }
       addNotification(t('common.success'), 'success');
     } catch (err) {
       addNotification(err.message, 'error');
+    }
+  };
+
+  const handleSaveInterview = async (data) => {
+    if (editingInterview) {
+      const { interview } = await updateInterview(id, editingInterview.id, data);
+      setApp((prev) => ({
+        ...prev,
+        interview_events: prev.interview_events.map((ie) => ie.id === interview.id ? interview : ie),
+      }));
+      setEditingInterview(null);
+    } else {
+      const { interview } = await createInterview(id, data);
+      setApp((prev) => ({
+        ...prev,
+        interview_events: [...(prev.interview_events || []), interview],
+      }));
+    }
+    addNotification(t('common.success'), 'success');
+  };
+
+  const handleDeleteInterview = async (interviewId) => {
+    try {
+      await deleteInterview(id, interviewId);
+      setApp((prev) => ({
+        ...prev,
+        interview_events: prev.interview_events.filter((ie) => ie.id !== interviewId),
+      }));
+      addNotification(t('common.success'), 'success');
+    } catch (err) {
+      addNotification(err.message || t('common.error'), 'error');
     }
   };
 
@@ -268,6 +309,7 @@ export default function ApplicationDetail() {
     { key: 'coverLetter', label: t('applicationDetail.tabCoverLetter'), dot: !!app.generated_cover_letter_html },
     { key: 'documents', label: t('applications.documents'), badge: app.documents?.length || 0 },
     { key: 'timeline', label: t('applicationDetail.tabTimeline') },
+    { key: 'interviews', label: t('interviews.tabTitle'), badge: app.interview_events?.length || 0 },
     ...(app.status === 'interview' ? [{ key: 'interviewPrep', label: t('applicationDetail.tabInterviewPrep'), dot: !!interviewPrep }] : []),
   ];
 
@@ -656,31 +698,80 @@ export default function ApplicationDetail() {
           {/* === TAB: Timeline === */}
           {activeTab === 'timeline' && (
             <div className="tab-content">
-              {app.status_history && app.status_history.length > 0 ? (
-                <div className="card detail-section">
-                  <h3 style={{ marginBottom: 12 }}>{t('applications.statusHistory')}</h3>
-                  <div className="timeline">
-                    {app.status_history.map((h) => (
-                      <div key={h.id} className="timeline-item">
-                        <div className="timeline-dot" />
-                        <div className="timeline-content">
-                          <div className="timeline-change">
-                            {h.from_status ? <StatusBadge status={h.from_status} /> : <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>—</span>}
-                            <span className="timeline-arrow">&rarr;</span>
-                            <StatusBadge status={h.to_status} />
+              <UnifiedTimeline
+                app={app}
+                onInterviewClick={() => setActiveTab('interviews')}
+              />
+            </div>
+          )}
+
+          {/* === TAB: Interviews === */}
+          {activeTab === 'interviews' && (
+            <div className="tab-content">
+              <div className="card detail-section">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <h3>{t('interviews.tabTitle')}</h3>
+                  <button className="btn btn-sm btn-primary" onClick={() => { setEditingInterview(null); setShowInterviewForm(true); }}>
+                    <span className="material-icon" style={{ fontSize: 16 }}>add</span> {t('interviews.addInterview')}
+                  </button>
+                </div>
+
+                {app.interview_events && app.interview_events.length > 0 ? (
+                  <div className="interview-events-list">
+                    {app.interview_events.map((ie) => (
+                      <div key={ie.id} className={`interview-event-card outcome-${ie.outcome}`}>
+                        <div className="interview-event-header">
+                          <div className="interview-event-phase">
+                            <span className="material-icon">groups</span>
+                            {t('interviews.phaseLabel', { n: ie.phase_number })}
                           </div>
-                          <span className="timeline-date">{new Date(h.changed_at).toLocaleString()}</span>
-                          {h.note && <p className="timeline-note">{h.note}</p>}
+                          <span className={`interview-outcome-badge ${ie.outcome}`}>
+                            {t(`interviews.outcomes.${ie.outcome}`)}
+                          </span>
+                        </div>
+                        <div className="interview-event-meta">
+                          <span className="interview-event-date">
+                            <span className="material-icon">event</span>
+                            {new Date(ie.interview_date).toLocaleString()}
+                          </span>
+                          {ie.interview_type && (
+                            <span className="interview-event-type">
+                              <span className="material-icon">category</span>
+                              {t(`interviews.types.${ie.interview_type}`)}
+                            </span>
+                          )}
+                          {ie.location && (
+                            <span className="interview-event-location">
+                              <span className="material-icon">location_on</span>
+                              {ie.location}
+                            </span>
+                          )}
+                        </div>
+                        {ie.salary_offered && (
+                          <div className="interview-event-salary">
+                            <span className="material-icon">payments</span>
+                            {t('interviews.salaryOffered')}: <strong>{ie.salary_offered}</strong>
+                          </div>
+                        )}
+                        {ie.notes && <p className="interview-event-notes">{ie.notes}</p>}
+                        <div className="interview-event-actions">
+                          <button className="btn btn-ghost btn-sm" onClick={() => { setEditingInterview(ie); setShowInterviewForm(true); }}>
+                            {t('common.edit')}
+                          </button>
+                          <button className="btn btn-ghost btn-sm" style={{ color: 'var(--error)' }} onClick={() => handleDeleteInterview(ie.id)}>
+                            {t('common.delete')}
+                          </button>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              ) : (
-                <div className="card detail-section">
-                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>—</p>
-                </div>
-              )}
+                ) : (
+                  <div style={{ textAlign: 'center', padding: 24 }}>
+                    <span className="material-icon" style={{ fontSize: 40, color: 'var(--text-muted)', marginBottom: 8, display: 'block' }}>event_available</span>
+                    <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{t('interviews.noInterviews')}</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -835,6 +926,15 @@ export default function ApplicationDetail() {
       <Modal isOpen={showOriginalPosting} onClose={() => setShowOriginalPosting(false)} title={t('applicationDetail.viewOriginalPosting')}>
         <div className="job-posting-text">{app?.job_posting_text}</div>
       </Modal>
+
+      {/* Interview form modal */}
+      <InterviewForm
+        isOpen={showInterviewForm}
+        onClose={() => { setShowInterviewForm(false); setEditingInterview(null); }}
+        onSave={handleSaveInterview}
+        interview={editingInterview}
+        applicationId={id}
+      />
     </div>
   );
 }

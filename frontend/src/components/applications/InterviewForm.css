@@ -1,0 +1,44 @@
+.interview-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.interview-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.interview-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.interview-form-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.interview-form-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.interview-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 600px) {
+  .interview-form-row {
+    grid-template-columns: 1fr;
+  }
+}

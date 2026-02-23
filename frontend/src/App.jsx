@@ -9,6 +9,7 @@ import Toast from './components/common/Toast';
 import PageTransition from './components/common/PageTransition';
 import OnboardingGuard from './components/common/OnboardingGuard';
 import TutorialOverlay from './components/common/TutorialOverlay';
+import FloatingAI from './components/chat/FloatingAI';
 import Dashboard from './pages/Dashboard';
 import ApplicationsList from './pages/ApplicationsList';
 import NewApplication from './pages/NewApplication';
@@ -57,6 +58,18 @@ function AppLayout() {
 
   const rightPanelPage = getRightPanelPage();
 
+  // Build AI context based on current page
+  const getAIContext = () => {
+    const appMatch = location.pathname.match(/^\/applications\/(\d+)$/);
+    if (appMatch) {
+      return { page: 'applicationDetail', applicationId: appMatch[1], step: 'general' };
+    }
+    if (location.pathname === '/search') {
+      return { page: 'jobSearch', step: 'search' };
+    }
+    return { page: 'general', step: 'general' };
+  };
+
   return (
     <OnboardingGuard>
       <div className="app-layout">
@@ -72,6 +85,7 @@ function AppLayout() {
           isOpen={showTutorial}
           onClose={() => setShowTutorial(false)}
         />
+        <FloatingAI context={getAIContext()} />
       </div>
     </OnboardingGuard>
   );

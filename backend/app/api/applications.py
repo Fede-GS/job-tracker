@@ -3,7 +3,7 @@ import calendar
 from datetime import date, datetime
 from flask import Blueprint, request, jsonify
 from ..extensions import db
-from ..models import Application, StatusHistory
+from ..models import Application, StatusHistory, InterviewEvent
 
 bp = Blueprint('applications', __name__, url_prefix='/api')
 
@@ -63,6 +63,13 @@ def calendar_applications():
     query = query.order_by(Application.applied_date.asc())
     apps = query.all()
 
+    # Fetch interview events for this month
+    interview_query = InterviewEvent.query.filter(
+        InterviewEvent.interview_date >= datetime(year, month, 1),
+        InterviewEvent.interview_date <= datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59),
+    ).order_by(InterviewEvent.interview_date.asc())
+    interviews = interview_query.all()
+
     return jsonify({
         'applications': [{
             'id': a.id,
@@ -73,6 +80,7 @@ def calendar_applications():
             'location': a.location,
             'deadline': a.deadline.isoformat() if a.deadline else None,
         } for a in apps],
+        'interviews': [ie.to_dict() for ie in interviews],
         'month': month,
         'year': year,
     })
@@ -86,6 +94,7 @@ def get_application(app_id):
     data['reminders'] = [r.to_dict() for r in app.reminders]
     data['status_history'] = [h.to_dict() for h in app.status_history]
     data['chat_messages'] = [m.to_dict() for m in app.chat_messages]
+    data['interview_events'] = [ie.to_dict() for ie in app.interview_events]
     return jsonify({'application': data})
 
 

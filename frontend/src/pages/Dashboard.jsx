@@ -36,6 +36,7 @@ export default function Dashboard() {
   const [timelinePeriod, setTimelinePeriod] = useState('daily');
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [timelinePopup, setTimelinePopup] = useState(null);
+  const [showGuide, setShowGuide] = useState(() => localStorage.getItem('dashboard_guide_dismissed') !== 'true');
 
   useEffect(() => {
     Promise.all([
@@ -144,6 +145,75 @@ export default function Dashboard() {
         <h1>{t('dashboard.title')}</h1>
         <p>{t('dashboard.subtitle')}</p>
       </div>
+
+      {/* How it works guide */}
+      {showGuide && (
+        <div className="how-it-works">
+          <div className="how-it-works-header">
+            <h3>{t('dashboard.howItWorks.title')}</h3>
+            <button className="btn btn-ghost btn-sm" onClick={() => { setShowGuide(false); localStorage.setItem('dashboard_guide_dismissed', 'true'); }} title={t('common.close')}>&times;</button>
+          </div>
+          <div className="how-it-works-steps">
+            <div className="how-step">
+              <div className="how-step-icon" style={{ background: '#3b82f6' }}>
+                <span className="material-icon">travel_explore</span>
+              </div>
+              <h4>{t('dashboard.howItWorks.step1Title')}</h4>
+              <p>{t('dashboard.howItWorks.step1Desc')}</p>
+            </div>
+            <div className="how-step-arrow"><span className="material-icon">arrow_forward</span></div>
+            <div className="how-step">
+              <div className="how-step-icon" style={{ background: '#f59e0b' }}>
+                <span className="material-icon">content_copy</span>
+              </div>
+              <h4>{t('dashboard.howItWorks.step2Title')}</h4>
+              <p>{t('dashboard.howItWorks.step2Desc')}</p>
+            </div>
+            <div className="how-step-arrow"><span className="material-icon">arrow_forward</span></div>
+            <div className="how-step">
+              <div className="how-step-icon" style={{ background: '#10b981' }}>
+                <span className="material-icon">content_paste_go</span>
+              </div>
+              <h4>{t('dashboard.howItWorks.step3Title')}</h4>
+              <p>{t('dashboard.howItWorks.step3Desc')}</p>
+            </div>
+            <div className="how-step-arrow"><span className="material-icon">arrow_forward</span></div>
+            <div className="how-step">
+              <div className="how-step-icon" style={{ background: '#8b5cf6' }}>
+                <span className="material-icon">auto_awesome</span>
+              </div>
+              <h4>{t('dashboard.howItWorks.step4Title')}</h4>
+              <p>{t('dashboard.howItWorks.step4Desc')}</p>
+            </div>
+          </div>
+          <div className="how-it-works-platforms">
+            <span className="how-platforms-label">{t('dashboard.howItWorks.quickLinks')}</span>
+            <div className="how-platforms-row">
+              <a href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener noreferrer" className="how-platform-link linkedin">
+                <span>in</span> LinkedIn
+              </a>
+              <a href="https://www.indeed.com/" target="_blank" rel="noopener noreferrer" className="how-platform-link indeed">
+                <span>iD</span> Indeed
+              </a>
+              <a href="https://www.glassdoor.com/Job/" target="_blank" rel="noopener noreferrer" className="how-platform-link glassdoor">
+                <span>G</span> Glassdoor
+              </a>
+              <a href="https://www.infojobs.it/" target="_blank" rel="noopener noreferrer" className="how-platform-link infojobs">
+                <span>iJ</span> InfoJobs
+              </a>
+            </div>
+          </div>
+          <div className="how-it-works-footer">
+            <button className="btn btn-primary" onClick={() => navigate('/applications/new')}>
+              <span className="material-icon" style={{ fontSize: 18 }}>arrow_forward</span>
+              {t('dashboard.howItWorks.startNow')}
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => { setShowGuide(false); localStorage.setItem('dashboard_guide_dismissed', 'true'); }}>
+              {t('dashboard.howItWorks.dontShowAgain')}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Smart Tips */}
       {smartTips.length > 0 && (

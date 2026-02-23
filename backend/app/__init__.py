@@ -15,7 +15,7 @@ def create_app():
     CORS(app, origins=["http://localhost:5173"])
     db.init_app(app)
 
-    from .api import applications, documents, reminders, ai, dashboard, settings, profile, job_search
+    from .api import applications, documents, reminders, ai, dashboard, settings, profile, job_search, interviews
     app.register_blueprint(applications.bp)
     app.register_blueprint(documents.bp)
     app.register_blueprint(reminders.bp)
@@ -24,6 +24,7 @@ def create_app():
     app.register_blueprint(settings.bp)
     app.register_blueprint(profile.bp)
     app.register_blueprint(job_search.bp)
+    app.register_blueprint(interviews.bp)
 
     with app.app_context():
         db.create_all()

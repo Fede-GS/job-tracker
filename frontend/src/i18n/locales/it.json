@@ -79,7 +79,21 @@
     "followupBody": "Corpo",
     "followupTips": "Consigli",
     "copyFollowup": "Copia Email",
-    "followupCopied": "Email copiata!"
+    "followupCopied": "Email copiata!",
+    "howItWorks": {
+      "title": "Come Funziona FinixJob",
+      "step1Title": "Cerca Lavoro",
+      "step1Desc": "Cerca su Indeed, LinkedIn, Glassdoor, InfoJobs o qualsiasi altra piattaforma",
+      "step2Title": "Copia l'Annuncio",
+      "step2Desc": "Seleziona e copia il testo completo della descrizione del lavoro",
+      "step3Title": "Incolla Qui",
+      "step3Desc": "Vai su Nuova Candidatura e incolla l'annuncio di lavoro",
+      "step4Title": "L'AI Fa il Resto",
+      "step4Desc": "Analisi compatibilità, CV su misura e lettera in pochi secondi",
+      "quickLinks": "Link Rapidi",
+      "startNow": "Inizia Ora",
+      "dontShowAgain": "Non mostrare più"
+    }
   },
   "applications": {
     "title": "Candidature",
@@ -296,6 +310,72 @@
     "coverLetter": "Cover Letter",
     "other": "Altro"
   },
+  "interviews": {
+    "tabTitle": "Colloqui",
+    "addInterview": "Aggiungi Colloquio",
+    "editInterview": "Modifica Colloquio",
+    "date": "Data e Ora",
+    "phase": "Fase",
+    "phaseLabel": "Fase {{n}}",
+    "type": "Tipo",
+    "types": {
+      "phone_screen": "Telefonata Iniziale",
+      "technical": "Tecnico",
+      "behavioral": "Comportamentale",
+      "final": "Finale",
+      "other": "Altro"
+    },
+    "outcome": "Esito",
+    "outcomes": {
+      "pending": "In Attesa",
+      "passed": "Superato",
+      "failed": "Non Superato",
+      "offer": "Offerta Ricevuta"
+    },
+    "location": "Luogo",
+    "locationPlaceholder": "es. Remoto — Zoom, In sede",
+    "salaryOffered": "Offerta Economica",
+    "salaryPlaceholder": "es. 40K-45K EUR",
+    "notes": "Note",
+    "notesPlaceholder": "Com'è andato? Argomenti principali discussi...",
+    "noInterviews": "Nessun colloquio programmato"
+  },
+  "floatingAI": {
+    "placeholder": "Chiedi a Finix...",
+    "thinking": "Finix sta pensando...",
+    "errorMessage": "Ops, qualcosa è andato storto. Riprova!",
+    "suggestGeneral1": "Come migliorare il mio CV?",
+    "suggestGeneral2": "Errori comuni nei colloqui?",
+    "welcome": {
+      "general": "Ciao! Sono Finix, il tuo assistente AI per la carriera. Posso aiutarti con CV, lettere di presentazione, preparazione ai colloqui e molto altro. Cosa posso fare per te?",
+      "dashboard": "Ciao! Sono Finix. Qui puoi vedere le tue statistiche a colpo d'occhio. Vuoi che analizzi i tuoi progressi o ti suggerisca i prossimi passi?",
+      "applications": "Ciao! Sono Finix. Stai guardando le tue candidature? Posso aiutarti a decidere su quali fare follow-up o prepararti per i colloqui.",
+      "newApplication": "Ciao! Sono Finix. Incolla un annuncio di lavoro e ti aiuterò ad analizzare la compatibilità con il tuo profilo, poi genererò CV e lettera su misura!",
+      "jobSearch": "Ciao! Sono Finix. Stai cercando lavoro? Posso aiutarti a raffinare la ricerca o analizzare quanto un annuncio è compatibile con il tuo profilo.",
+      "profile": "Ciao! Sono Finix. Un profilo completo sblocca tutte le funzionalità AI. Hai bisogno di aiuto per scrivere il riepilogo professionale o descrivere le tue esperienze?",
+      "settings": "Ciao! Sono Finix. Hai bisogno di aiuto per configurare le API? Posso guidarti passo per passo.",
+      "aiAssistant": "Ciao! Sono Finix. Qui puoi generare CV, lettere e molto altro. Seleziona una candidatura e dimmi cosa ti serve!",
+      "applicationDetail": "Ciao! Sono Finix. Posso aiutarti con questa candidatura — prepararti per il colloquio, migliorare il CV o scrivere un'email di follow-up."
+    },
+    "tips": {
+      "general": ["Come migliorare il mio CV?", "Errori comuni nei colloqui?"],
+      "dashboard": ["Analizza le mie statistiche", "Cosa dovrei fare adesso?"],
+      "applications": ["Quali candidature necessitano follow-up?", "Come tracciare meglio i colloqui?"],
+      "newApplication": ["Consigli per incollare un annuncio", "Cos'è un buon match score?"],
+      "jobSearch": ["Come cercare in modo efficace?", "Quali parole chiave usare?"],
+      "profile": ["Aiutami a scrivere il riepilogo", "Come descrivere le mie esperienze?"],
+      "settings": ["Come ottenere una Gemini API key?", "Come configurare Adzuna?"],
+      "aiAssistant": ["Genera un CV su misura", "Scrivi una lettera di presentazione"],
+      "applicationDetail": ["Preparami per il colloquio", "Scrivi un'email di follow-up"]
+    }
+  },
+  "timeline": {
+    "created": "Candidatura Creata",
+    "statusChange": "Cambio di Stato",
+    "documentUploaded": "Documento Caricato",
+    "reminder": "Promemoria",
+    "empty": "Nessun evento nella timeline"
+  },
   "jobSearch": {
     "title": "Cerca Lavoro",
     "subtitle": "Trova offerte di lavoro e analizza la compatibilit\u00e0 con il tuo profilo",
@@ -345,7 +425,10 @@
     "goToSettings": "Vai alle Impostazioni",
     "smartSearch": "Ricerca Smart",
     "smartSearchTooltip": "Trova offerte basate sul tuo profilo",
-    "suggestedSearches": "Ricerche suggerite:"
+    "suggestedSearches": "Ricerche suggerite:",
+    "importTitle": "Hai trovato un lavoro su un'altra piattaforma?",
+    "importDesc": "Copia l'annuncio completo da LinkedIn, Indeed, Glassdoor o qualsiasi altro sito e incollalo qui per far analizzare all'AI la compatibilità, generare un CV su misura e una lettera di presentazione.",
+    "importButton": "Incolla un Annuncio"
   },
   "milestones": {
     "first": "Primo Passo!",
