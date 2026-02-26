@@ -14,10 +14,9 @@ const PAGE_TIPS = {
   '/ai': 'aiAssistant',
 };
 
-export default function FloatingAI({ context = {} }) {
+export default function FloatingAI({ context = {}, sidebarCollapsed = false, isOpen = false, onToggle }) {
   const { t } = useTranslation();
   const location = useLocation();
-  const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,10 +34,10 @@ export default function FloatingAI({ context = {} }) {
   }, [context]);
 
   useEffect(() => {
-    if (open) {
+    if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, open]);
+  }, [messages, isOpen]);
 
   const handleSend = async (text) => {
     const msgText = text || input.trim();
@@ -75,93 +74,87 @@ export default function FloatingAI({ context = {} }) {
     return [t('floatingAI.suggestGeneral1'), t('floatingAI.suggestGeneral2')];
   };
 
+  // Calculate panel position based on sidebar state
+  const panelLeft = sidebarCollapsed ? 'calc(var(--sidebar-width-collapsed) + 12px)' : 'calc(var(--sidebar-width) + 12px)';
+
+  // Don't render anything if not open
+  if (!isOpen) return null;
+
   return (
-    <>
-      {/* FAB — Logo fenice */}
-      <button
-        className={`floating-ai-fab ${open ? 'open' : ''}`}
-        onClick={() => setOpen(!open)}
-        title="Finix"
-      >
-        {open
-          ? <span className="material-icon">close</span>
-          : <img src="/logo.png" alt="Finix" className="finix-fab-logo" />
-        }
-      </button>
-
-      {/* Chat panel */}
-      {open && (
-        <div className="floating-ai-panel">
-          <div className="floating-ai-header">
-            <div className="floating-ai-header-info">
-              <img src="/logo.png" alt="Finix" className="finix-header-logo" />
-              <span>Finix</span>
-            </div>
-            <button className="btn btn-ghost btn-sm" onClick={() => setOpen(false)}>
-              <span className="material-icon" style={{ fontSize: 18 }}>close</span>
-            </button>
-          </div>
-
-          <div className="floating-ai-messages">
-            {messages.length === 0 && (
-              <div className="floating-ai-welcome">
-                <div className="floating-ai-message assistant">
-                  <div className="floating-ai-message-content">
-                    {t(`floatingAI.welcome.${pageKey}`, { defaultValue: t('floatingAI.welcome.general') })}
-                  </div>
-                </div>
-                <div className="floating-ai-suggestions">
-                  {getSuggestions().map((s, i) => (
-                    <button
-                      key={i}
-                      className="floating-ai-suggestion"
-                      onClick={() => handleSend(s)}
-                    >
-                      <span className="material-icon" style={{ fontSize: 14 }}>arrow_forward</span>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {messages.map((msg, i) => (
-              <div key={i} className={`floating-ai-message ${msg.role}`}>
-                {msg.role === 'assistant' && (
-                  <img src="/logo.png" alt="Finix" className="finix-msg-avatar" />
-                )}
-                <div className="floating-ai-message-content">{msg.content}</div>
-              </div>
-            ))}
-            {loading && (
-              <div className="floating-ai-message assistant">
-                <img src="/logo.png" alt="Finix" className="finix-msg-avatar" />
-                <div className="floating-ai-message-content typing">
-                  <span className="spinner" /> {t('floatingAI.thinking')}
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          <div className="floating-ai-input">
-            <input
-              className="form-input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={t('floatingAI.placeholder')}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              disabled={loading}
-            />
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => handleSend()}
-              disabled={loading || !input.trim()}
-            >
-              <span className="material-icon" style={{ fontSize: 18 }}>send</span>
-            </button>
+    <div className="floating-ai-panel" style={{ left: panelLeft }}>
+      <div className="floating-ai-header">
+        <div className="floating-ai-header-info">
+          <img src="/logo.png" alt="Finix" className="finix-header-logo" />
+          <div>
+            <h4>Finix AI</h4>
+            <span className="floating-ai-status">
+              {loading ? t('floatingAI.thinking') : 'Online'}
+            </span>
           </div>
         </div>
-      )}
-    </>
+        <button className="floating-ai-close" onClick={onToggle}>
+          <span className="material-icon">close</span>
+        </button>
+      </div>
+
+      <div className="floating-ai-messages">
+        {messages.length === 0 && (
+          <div className="floating-ai-welcome">
+            <div className="floating-ai-message assistant">
+              <div className="floating-ai-message-content">
+                {t(`floatingAI.welcome.${pageKey}`, { defaultValue: t('floatingAI.welcome.general') })}
+              </div>
+            </div>
+            <div className="floating-ai-suggestions">
+              {getSuggestions().map((s, i) => (
+                <button
+                  key={i}
+                  className="floating-ai-suggestion"
+                  onClick={() => handleSend(s)}
+                >
+                  <span className="material-icon" style={{ fontSize: 14 }}>arrow_forward</span>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {messages.map((msg, i) => (
+          <div key={i} className={`floating-ai-message ${msg.role}`}>
+            {msg.role === 'assistant' && (
+              <img src="/logo.png" alt="Finix" className="finix-msg-avatar" />
+            )}
+            <div className="floating-ai-message-content">{msg.content}</div>
+          </div>
+        ))}
+        {loading && (
+          <div className="floating-ai-message assistant">
+            <img src="/logo.png" alt="Finix" className="finix-msg-avatar" />
+            <div className="floating-ai-message-content typing">
+              <span className="spinner" /> {t('floatingAI.thinking')}
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="floating-ai-input">
+        <input
+          className="form-input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={t('floatingAI.placeholder')}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          disabled={loading}
+        />
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => handleSend()}
+          disabled={loading || !input.trim()}
+        >
+          <span className="material-icon" style={{ fontSize: 18 }}>send</span>
+        </button>
+      </div>
+    </div>
   );
 }

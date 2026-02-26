@@ -7,9 +7,9 @@ import Modal from '../components/common/Modal';
 import PageTutorial from '../components/common/PageTutorial';
 import './JobSearch.css';
 
-// Adzuna API supported countries only
+// Adzuna API — EU countries + UK + Switzerland + USA
 const COUNTRIES = [
-  'gb', 'us', 'de', 'fr', 'au', 'nz', 'ca', 'in', 'pl', 'br', 'at', 'za',
+  'it', 'at', 'be', 'ch', 'de', 'es', 'fr', 'gb', 'nl', 'pl', 'us',
 ];
 
 const scoreColor = (score) => {
@@ -26,7 +26,7 @@ export default function JobSearch() {
   const [source, setSource] = useState('adzuna');
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
-  const [country, setCountry] = useState('gb');
+  const [country, setCountry] = useState('it');
   const [jobs, setJobs] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -185,7 +185,7 @@ export default function JobSearch() {
         >
           <span className="material-icon">travel_explore</span>
           {t('jobSearch.sourceAdzuna')}
-          <span className="source-pill-badge">12 {t('jobSearch.country').toLowerCase()}</span>
+          <span className="source-pill-badge">11 {t('jobSearch.country').toLowerCase()}</span>
         </button>
         <button
           className={`source-pill ${source === 'jsearch' ? 'active' : ''}`}
@@ -217,6 +217,7 @@ export default function JobSearch() {
         />
         {source === 'adzuna' && (
           <select className="form-select job-country-select" value={country} onChange={(e) => setCountry(e.target.value)}>
+            <option value="all">{t('jobSearch.countries.all')}</option>
             {COUNTRIES.map((c) => (
               <option key={c} value={c}>{t(`jobSearch.countries.${c}`)}</option>
             ))}
@@ -449,15 +450,45 @@ export default function JobSearch() {
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
-              <button className="btn btn-ghost" onClick={closeModal}>{t('jobSearch.closeAnalysis')}</button>
+            <div className="match-modal-actions">
+              <button className="btn btn-ghost" onClick={closeModal}>
+                {t('jobSearch.closeAnalysis')}
+              </button>
               <button
                 className="btn btn-primary"
-                onClick={() => { handleSave(matchJob, matchResult); closeModal(); }}
-                disabled={savedIds.has(matchJob.adzuna_id)}
+                onClick={() => {
+                  closeModal();
+                  navigate('/applications/new', {
+                    state: {
+                      fromJobSearch: true,
+                      jobData: {
+                        title: matchJob.title,
+                        company: matchJob.company,
+                        location: matchJob.location,
+                        url: matchJob.url,
+                        description: matchJob.description,
+                        salary_min: matchJob.salary_min,
+                        salary_max: matchJob.salary_max,
+                      },
+                      matchAnalysis: matchResult,
+                    },
+                  });
+                }}
               >
-                {savedIds.has(matchJob.adzuna_id) ? t('jobSearch.saved') : t('jobSearch.saveApplication')}
+                <span className="material-icon" style={{ fontSize: 18 }}>arrow_forward</span>
+                {t('jobSearch.continueApplication')}
               </button>
+              {matchJob.url && (
+                <a
+                  href={matchJob.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary"
+                >
+                  <span className="material-icon" style={{ fontSize: 18 }}>open_in_new</span>
+                  {t('jobSearch.goToWebsite')}
+                </a>
+              )}
             </div>
           </div>
         )}

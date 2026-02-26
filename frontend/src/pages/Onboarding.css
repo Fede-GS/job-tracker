@@ -194,8 +194,114 @@
   opacity: 0.6;
 }
 
+/* Three-column choices layout */
+.onboarding-choices.three-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 32px;
+}
+
+.onboarding-choice {
+  position: relative;
+  padding-bottom: 48px; /* space for badge */
+}
+
+.choice-badge {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.choice-badge.ai-badge {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--accent-primary, #6366f1);
+}
+
+.linkedin-choice {
+  border-color: rgba(10, 102, 194, 0.3);
+}
+
+.linkedin-choice:hover {
+  border-color: #0a66c2;
+  background: rgba(10, 102, 194, 0.05);
+}
+
+/* LinkedIn import section */
+.linkedin-mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: var(--bg-secondary, var(--bg-primary));
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.linkedin-toggle-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.linkedin-toggle-btn.active {
+  background: var(--bg-card, white);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.linkedin-info-box {
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.linkedin-info-box p {
+  margin: 0 0 4px;
+}
+
+.linkedin-info-box ol {
+  margin: 8px 0 0 16px;
+  padding: 0;
+}
+
+.linkedin-info-box li {
+  margin-bottom: 4px;
+}
+
+.linkedin-info-box strong {
+  color: var(--text-primary);
+}
+
 @media (max-width: 768px) {
   .onboarding-choices {
+    grid-template-columns: 1fr;
+  }
+  .onboarding-choices.three-choices {
     grid-template-columns: 1fr;
   }
   .choice-divider {

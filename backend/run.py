@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # Load .env file before creating the app
+
 from app import create_app
 
 app = create_app()

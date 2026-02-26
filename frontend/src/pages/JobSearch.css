@@ -476,6 +476,21 @@
   border-left: 3px solid var(--warning);
 }
 
+/* ── Match modal actions ── */
+.match-modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.match-modal-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .job-search-bar {

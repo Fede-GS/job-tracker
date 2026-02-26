@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, useLocation, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { ProfileProvider } from './context/ProfileContext';
+import { AuthProvider } from './context/AuthContext';
+import AuthGuard from './components/common/AuthGuard';
 import Sidebar from './components/layout/Sidebar';
 import RightPanel from './components/layout/RightPanel';
 import Toast from './components/common/Toast';
@@ -18,7 +20,10 @@ import AIAssistant from './pages/AIAssistant';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import JobSearch from './pages/JobSearch';
+import CareerConsultant from './pages/CareerConsultant';
 import Onboarding from './pages/Onboarding';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 // Page keys that have page-level tutorial tips
 const PAGE_TUTORIAL_KEYS = [
@@ -29,6 +34,10 @@ const PAGE_TUTORIAL_KEYS = [
 function AppLayout() {
   const location = useLocation();
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('sidebar_collapsed') === 'true';
+  });
 
   // Auto-show tutorial on first visit
   useEffect(() => {
@@ -48,19 +57,28 @@ function AppLayout() {
     setShowTutorial(true);
   }, []);
 
+  const handleToggleSidebar = useCallback(() => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebar_collapsed', String(next));
+      return next;
+    });
+  }, []);
+
+  // Determine right panel page
   const getRightPanelPage = () => {
     if (location.pathname === '/') return 'dashboard';
     if (location.pathname === '/applications') return 'applications';
+    if (location.pathname === '/profile') return 'profile';
     if (location.pathname === '/search') return 'jobSearch';
-    if (/^\/applications\/\d+$/.test(location.pathname)) return 'applicationDetail';
     return null;
   };
 
   const rightPanelPage = getRightPanelPage();
 
-  // Build AI context based on current page
+  // Determine AI context
   const getAIContext = () => {
-    const appMatch = location.pathname.match(/^\/applications\/(\d+)$/);
+    const appMatch = location.pathname.match(/^\/applications\/(\d+)/);
     if (appMatch) {
       return { page: 'applicationDetail', applicationId: appMatch[1], step: 'general' };
     }
@@ -72,8 +90,14 @@ function AppLayout() {
 
   return (
     <OnboardingGuard>
-      <div className="app-layout">
-        <Sidebar onReplayTutorial={handleReplayTutorial} />
+      <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <Sidebar
+          onReplayTutorial={handleReplayTutorial}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={handleToggleSidebar}
+          onToggleAIChat={() => setShowAIChat((prev) => !prev)}
+          aiChatOpen={showAIChat}
+        />
         <main className="main-content">
           <PageTransition>
             <Outlet />
@@ -85,7 +109,12 @@ function AppLayout() {
           isOpen={showTutorial}
           onClose={() => setShowTutorial(false)}
         />
-        <FloatingAI context={getAIContext()} />
+        <FloatingAI
+          context={getAIContext()}
+          sidebarCollapsed={sidebarCollapsed}
+          isOpen={showAIChat}
+          onToggle={() => setShowAIChat((prev) => !prev)}
+        />
       </div>
     </OnboardingGuard>
   );
@@ -95,26 +124,49 @@ export default function App() {
   return (
     <ThemeProvider>
       <NotificationProvider>
-        <ProfileProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Onboarding: fullscreen, no sidebar */}
-              <Route path="/onboarding" element={<Onboarding />} />
+        <AuthProvider>
+          <ProfileProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public auth routes — no auth required */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              {/* All other routes: sidebar + OnboardingGuard */}
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/applications" element={<ApplicationsList />} />
-                <Route path="/applications/new" element={<NewApplication />} />
-                <Route path="/applications/:id" element={<ApplicationDetail />} />
-                <Route path="/search" element={<JobSearch />} />
-                <Route path="/ai" element={<AIAssistant />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </ProfileProvider>
+                {/* Onboarding: requires auth but no sidebar */}
+                <Route
+                  path="/onboarding"
+                  element={
+                    <AuthGuard>
+                      <Onboarding />
+                    </AuthGuard>
+                  }
+                />
+
+                {/* All other routes: auth + sidebar + OnboardingGuard */}
+                <Route
+                  element={
+                    <AuthGuard>
+                      <AppLayout />
+                    </AuthGuard>
+                  }
+                >
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/applications" element={<ApplicationsList />} />
+                  <Route path="/applications/new" element={<NewApplication />} />
+                  <Route path="/applications/:id" element={<ApplicationDetail />} />
+                  <Route path="/search" element={<JobSearch />} />
+                  <Route path="/career-consultant" element={<CareerConsultant />} />
+                  <Route path="/ai" element={<AIAssistant />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
+
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </ProfileProvider>
+        </AuthProvider>
       </NotificationProvider>
     </ThemeProvider>
   );

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getApplication, updateApplication, deleteApplication, changeStatus } from '../api/applications';
 import { uploadDocument, deleteDocument } from '../api/documents';
 import { createReminder, dismissReminder, deleteReminder } from '../api/reminders';
-import { summarizeApplication, generateInterviewPrep, tailorCvTemplate } from '../api/ai';
+import { summarizeApplication, generateInterviewPrep, tailorCvTemplate, tailorCoverLetter, improveText, getConsultantSessions } from '../api/ai';
 import { generatePdf } from '../api/profile';
 import { createInterview, updateInterview, deleteInterview } from '../api/interviews';
 import { useNotification } from '../context/NotificationContext';
@@ -62,6 +62,19 @@ export default function ApplicationDetail() {
   const [skillsFormat, setSkillsFormat] = useState('list');
   const [generatingCv, setGeneratingCv] = useState(false);
 
+  // PDF preview state
+  const [showCvPreview, setShowCvPreview] = useState(false);
+  const [showClPreview, setShowClPreview] = useState(false);
+
+  // Cover letter generation state
+  const [clLength, setClLength] = useState('medium');
+  const [generatingCl, setGeneratingCl] = useState(false);
+
+  // AI improve state
+  const [showImproveAI, setShowImproveAI] = useState(false);
+  const [improveInstructions, setImproveInstructions] = useState('');
+  const [improving, setImproving] = useState(false);
+
   // Interview Prep state
   const [interviewPrep, setInterviewPrep] = useState(null);
   const [generatingPrep, setGeneratingPrep] = useState(false);
@@ -71,6 +84,9 @@ export default function ApplicationDetail() {
   const [showInterviewForm, setShowInterviewForm] = useState(false);
   const [editingInterview, setEditingInterview] = useState(null);
 
+  // Career consultant sessions
+  const [consultantSessions, setConsultantSessions] = useState([]);
+
   const fetchApp = () => {
     getApplication(id)
       .then(({ application }) => setApp(application))
@@ -78,7 +94,13 @@ export default function ApplicationDetail() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchApp(); }, [id]);
+  const fetchConsultantSessions = () => {
+    getConsultantSessions(id)
+      .then((data) => setConsultantSessions(data.sessions || []))
+      .catch(() => {});
+  };
+
+  useEffect(() => { fetchApp(); fetchConsultantSessions(); }, [id]);
 
   const handleStatusChange = async (newStatus) => {
     try {
@@ -97,21 +119,26 @@ export default function ApplicationDetail() {
   };
 
   const handleSaveInterview = async (data) => {
-    if (editingInterview) {
-      const { interview } = await updateInterview(id, editingInterview.id, data);
-      setApp((prev) => ({
-        ...prev,
-        interview_events: prev.interview_events.map((ie) => ie.id === interview.id ? interview : ie),
-      }));
-      setEditingInterview(null);
-    } else {
-      const { interview } = await createInterview(id, data);
-      setApp((prev) => ({
-        ...prev,
-        interview_events: [...(prev.interview_events || []), interview],
-      }));
+    try {
+      if (editingInterview) {
+        const { interview } = await updateInterview(id, editingInterview.id, data);
+        setApp((prev) => ({
+          ...prev,
+          interview_events: prev.interview_events.map((ie) => ie.id === interview.id ? interview : ie),
+        }));
+        setEditingInterview(null);
+      } else {
+        const { interview } = await createInterview(id, data);
+        setApp((prev) => ({
+          ...prev,
+          interview_events: [...(prev.interview_events || []), interview],
+        }));
+      }
+      addNotification(t('common.success'), 'success');
+    } catch (err) {
+      addNotification(err.message || t('common.error'), 'error');
+      throw err;
     }
-    addNotification(t('common.success'), 'success');
   };
 
   const handleDeleteInterview = async (interviewId) => {
@@ -284,6 +311,51 @@ export default function ApplicationDetail() {
     }
   };
 
+  const handleGenerateCoverLetter = async () => {
+    if (!app.job_posting_text) {
+      addNotification(t('applicationDetail.noJobPosting'), 'error');
+      return;
+    }
+    setGeneratingCl(true);
+    try {
+      const { html } = await tailorCoverLetter({
+        job_posting: app.job_posting_text,
+        company: app.company,
+        role: app.role,
+        length: clLength,
+      });
+      const { application } = await updateApplication(id, { generated_cover_letter_html: html });
+      setApp((prev) => ({ ...prev, ...application }));
+      addNotification(t('common.success'), 'success');
+    } catch (err) {
+      addNotification(err.message || t('common.error'), 'error');
+    } finally {
+      setGeneratingCl(false);
+    }
+  };
+
+  const handleImproveWithAI = async () => {
+    const currentHtml = clEditing ? editedClHtml : app.generated_cover_letter_html;
+    if (!currentHtml) return;
+    setImproving(true);
+    try {
+      const { content } = await improveText(currentHtml, improveInstructions || undefined);
+      if (clEditing) {
+        setEditedClHtml(content);
+      } else {
+        const { application } = await updateApplication(id, { generated_cover_letter_html: content });
+        setApp((prev) => ({ ...prev, ...application }));
+      }
+      setShowImproveAI(false);
+      setImproveInstructions('');
+      addNotification(t('common.success'), 'success');
+    } catch (err) {
+      addNotification(err.message || t('common.error'), 'error');
+    } finally {
+      setImproving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="app-detail">
@@ -360,6 +432,43 @@ export default function ApplicationDetail() {
           {/* === TAB: Overview === */}
           {activeTab === 'overview' && (
             <div className="tab-content">
+              {/* FinixAI Career Consultant Banner */}
+              <div
+                className="finixai-banner"
+                onClick={() => navigate(`/career-consultant?application_id=${id}`)}
+              >
+                <img src="/logo.png" alt="FinixAI" className="finixai-banner-avatar" />
+                <div className="finixai-banner-content">
+                  <p className="finixai-banner-title">{t('careerConsultant.bannerTitle')}</p>
+                  <p className="finixai-banner-desc">{t('careerConsultant.bannerDesc')}</p>
+                </div>
+                <span className="material-icon finixai-banner-arrow">arrow_forward</span>
+              </div>
+
+              {/* Consultant Sessions for this application */}
+              {consultantSessions.length > 0 && (
+                <div className="card detail-section" style={{ marginBottom: 16 }}>
+                  <h3>{t('careerConsultant.consultantSessions')}</h3>
+                  <div className="cc-app-sessions">
+                    {consultantSessions.map((s) => (
+                      <div
+                        key={s.id}
+                        className="cc-app-session-card"
+                        onClick={() => navigate(`/career-consultant?application_id=${id}`)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="cc-app-session-info">
+                          <strong>{s.title}</strong>
+                          <span>{new Date(s.created_at).toLocaleDateString()} · {s.topic || 'general'}</span>
+                          {s.summary && <div className="cc-app-session-summary">{s.summary}</div>}
+                        </div>
+                        <span className="material-icon" style={{ color: 'var(--accent)' }}>chevron_right</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Quick info */}
               <div className="app-detail-info">
                 {app.location && <div className="info-item"><span className="info-label">{t('applications.location')}</span><span>{app.location}</span></div>}
@@ -413,6 +522,17 @@ export default function ApplicationDetail() {
                 ) : (
                   <p className="detail-text" style={{ marginTop: 8, color: 'var(--text-muted)' }}>—</p>
                 )}
+                {/* Follow-up reminder shortcut */}
+                <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    onClick={() => setShowReminder(true)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <span className="material-icon" style={{ fontSize: 16 }}>alarm_add</span>
+                    {t('applicationDetail.setFollowupReminder')}
+                  </button>
+                </div>
               </div>
 
               {/* Reminders */}
@@ -592,6 +712,10 @@ export default function ApplicationDetail() {
                       <div className="doc-viewer-actions">
                         {!cvEditing ? (
                           <>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setShowCvPreview(true)}>
+                              <span className="material-icon" style={{ fontSize: 16 }}>visibility</span>
+                              {t('applicationDetail.previewPdf')}
+                            </button>
                             <button className="btn btn-primary btn-sm" onClick={() => handleExportPdf(app.generated_cv_html, 'cv')} disabled={exportingPdf}>
                               {exportingPdf ? <><span className="spinner" /></> : t('applicationDetail.exportPdf')}
                             </button>
@@ -640,29 +764,86 @@ export default function ApplicationDetail() {
               {clMode === 'generated' ? (
                 <div className="card detail-section">
                   <h3>{t('applicationDetail.generatedCoverLetter')}</h3>
-                  {app.generated_cover_letter_html ? (
+
+                  {/* Length selector */}
+                  <div className="cl-length-selector">
+                    <span className="cv-toggle-label">{t('applicationDetail.coverLetterLength')}</span>
+                    <div className="cl-length-options">
+                      {[
+                        { key: 'short', label: t('applicationDetail.clLengthShort'), desc: t('applicationDetail.clLengthShortDesc') },
+                        { key: 'medium', label: t('applicationDetail.clLengthMedium'), desc: t('applicationDetail.clLengthMediumDesc') },
+                        { key: 'long', label: t('applicationDetail.clLengthLong'), desc: t('applicationDetail.clLengthLongDesc') },
+                      ].map((opt) => (
+                        <button
+                          key={opt.key}
+                          className={`cl-length-btn ${clLength === opt.key ? 'active' : ''}`}
+                          onClick={() => setClLength(opt.key)}
+                        >
+                          <span className="cl-length-label">{opt.label}</span>
+                          <span className="cl-length-desc">{opt.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Generated cover letter viewer */}
+                  {app.generated_cover_letter_html && (
                     <>
-                      <div className="doc-viewer">
+                      <div className="doc-viewer" style={{ marginTop: 16 }}>
                         <RichTextEditor
                           content={clEditing ? editedClHtml : app.generated_cover_letter_html}
                           onChange={clEditing ? setEditedClHtml : undefined}
                           editable={clEditing}
                         />
                       </div>
+
+                      {/* AI Improve panel */}
+                      {showImproveAI && (
+                        <div className="cl-improve-panel">
+                          <label className="cl-improve-label">{t('applicationDetail.improveInstructions')}</label>
+                          <input
+                            className="form-input"
+                            value={improveInstructions}
+                            onChange={(e) => setImproveInstructions(e.target.value)}
+                            placeholder={t('applicationDetail.improveInstructionsPlaceholder')}
+                          />
+                          <div className="cl-improve-actions">
+                            <button className="btn btn-primary btn-sm" onClick={handleImproveWithAI} disabled={improving}>
+                              {improving ? <><span className="spinner" /> {t('applicationDetail.improving')}</> : t('applicationDetail.improveApply')}
+                            </button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => { setShowImproveAI(false); setImproveInstructions(''); }}>
+                              {t('common.cancel')}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="doc-viewer-actions">
                         {!clEditing ? (
                           <>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setShowClPreview(true)}>
+                              <span className="material-icon" style={{ fontSize: 16 }}>visibility</span>
+                              {t('applicationDetail.previewPdf')}
+                            </button>
                             <button className="btn btn-primary btn-sm" onClick={() => handleExportPdf(app.generated_cover_letter_html, 'cover_letter')} disabled={exportingPdf}>
                               {exportingPdf ? <><span className="spinner" /></> : t('applicationDetail.exportPdf')}
                             </button>
                             <button className="btn btn-secondary btn-sm" onClick={() => { setEditedClHtml(app.generated_cover_letter_html); setClEditing(true); }}>
                               {t('applicationDetail.editDocument')}
                             </button>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setShowImproveAI(!showImproveAI)}>
+                              <span className="material-icon" style={{ fontSize: 16 }}>auto_awesome</span>
+                              {t('applicationDetail.improveWithAI')}
+                            </button>
                           </>
                         ) : (
                           <>
                             <button className="btn btn-primary btn-sm" onClick={() => handleSaveGeneratedDoc('generated_cover_letter_html', editedClHtml)} disabled={saving}>
                               {saving ? <span className="spinner" /> : t('applicationDetail.saveChanges')}
+                            </button>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setShowImproveAI(!showImproveAI)}>
+                              <span className="material-icon" style={{ fontSize: 16 }}>auto_awesome</span>
+                              {t('applicationDetail.improveWithAI')}
                             </button>
                             <button className="btn btn-ghost btn-sm" onClick={() => setClEditing(false)}>
                               {t('applicationDetail.cancelEdit')}
@@ -671,9 +852,25 @@ export default function ApplicationDetail() {
                         )}
                       </div>
                     </>
-                  ) : (
-                    <p className="generated-doc-empty">{t('applicationDetail.noGeneratedCoverLetter')}</p>
                   )}
+
+                  {/* Generate button at the bottom */}
+                  <div className="cl-generate-row">
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleGenerateCoverLetter}
+                      disabled={generatingCl || !app.job_posting_text}
+                    >
+                      {generatingCl ? (
+                        <><span className="spinner" /> {t('applicationDetail.generatingCoverLetter')}</>
+                      ) : (
+                        <><span className="material-icon" style={{ fontSize: 18 }}>auto_awesome</span> {t('applicationDetail.generateCoverLetter')}</>
+                      )}
+                    </button>
+                    {!app.generated_cover_letter_html && (
+                      <p className="generated-doc-empty" style={{ marginTop: 0, flex: 1 }}>{t('applicationDetail.noGeneratedCoverLetter')}</p>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="card detail-section">
@@ -935,6 +1132,56 @@ export default function ApplicationDetail() {
         interview={editingInterview}
         applicationId={id}
       />
+
+      {/* CV PDF Preview Modal */}
+      {showCvPreview && app.generated_cv_html && (
+        <div className="pdf-preview-overlay" onClick={() => setShowCvPreview(false)}>
+          <div className="pdf-preview-container" onClick={(e) => e.stopPropagation()}>
+            <div className="pdf-preview-header">
+              <h3>{t('applicationDetail.cvPreviewTitle')}</h3>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowCvPreview(false)}>
+                <span className="material-icon">close</span>
+              </button>
+            </div>
+            <div className="pdf-preview-body">
+              <div className="pdf-a4-page" dangerouslySetInnerHTML={{ __html: app.generated_cv_html }} />
+            </div>
+            <div className="pdf-preview-footer">
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowCvPreview(false)}>
+                {t('applicationDetail.closePreview')}
+              </button>
+              <button className="btn btn-primary btn-sm" onClick={() => { setShowCvPreview(false); handleExportPdf(app.generated_cv_html, 'cv'); }} disabled={exportingPdf}>
+                {exportingPdf ? <><span className="spinner" /></> : <><span className="material-icon" style={{ fontSize: 16 }}>picture_as_pdf</span> {t('applicationDetail.exportFromPreview')}</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cover Letter PDF Preview Modal */}
+      {showClPreview && app.generated_cover_letter_html && (
+        <div className="pdf-preview-overlay" onClick={() => setShowClPreview(false)}>
+          <div className="pdf-preview-container" onClick={(e) => e.stopPropagation()}>
+            <div className="pdf-preview-header">
+              <h3>{t('applicationDetail.clPreviewTitle')}</h3>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowClPreview(false)}>
+                <span className="material-icon">close</span>
+              </button>
+            </div>
+            <div className="pdf-preview-body">
+              <div className="pdf-a4-page" dangerouslySetInnerHTML={{ __html: app.generated_cover_letter_html }} />
+            </div>
+            <div className="pdf-preview-footer">
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowClPreview(false)}>
+                {t('applicationDetail.closePreview')}
+              </button>
+              <button className="btn btn-primary btn-sm" onClick={() => { setShowClPreview(false); handleExportPdf(app.generated_cover_letter_html, 'cover_letter'); }} disabled={exportingPdf}>
+                {exportingPdf ? <><span className="spinner" /></> : <><span className="material-icon" style={{ fontSize: 16 }}>picture_as_pdf</span> {t('applicationDetail.exportFromPreview')}</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

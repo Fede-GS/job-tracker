@@ -5,63 +5,71 @@ from datetime import datetime
 
 TEMPLATE_CSS = {
     'classic': """
-        @page { size: A4; margin: 2cm; }
-        body { font-family: 'Times New Roman', Georgia, serif; font-size: 10pt; line-height: 1.6; color: #333; }
-        h1 { font-size: 20pt; color: #1a1a2e; margin-bottom: 4px; text-align: center; }
-        h2 { font-size: 13pt; color: #1a1a2e; border-bottom: 2px solid #1a1a2e; padding-bottom: 4px; margin-top: 18px; text-transform: uppercase; letter-spacing: 1px; }
-        h3 { font-size: 11pt; color: #333; }
-        ul { padding-left: 20px; }
-        li { margin-bottom: 3px; }
-        p { margin-bottom: 6px; }
-        hr { border: none; border-top: 1px solid #ccc; margin: 12px 0; }
+        @page { size: A4; margin: 1.8cm 2cm; }
+        body { font-family: 'Times New Roman', Georgia, serif; font-size: 9.5pt; line-height: 1.55; color: #222; }
+        h1 { font-size: 20pt; color: #111; margin: 0 0 2px 0; font-weight: 700; }
+        h2 { font-size: 10.5pt; color: #111; border-bottom: 1.5px solid #111; padding-bottom: 3px; margin-top: 14px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; }
+        h3 { font-size: 9.5pt; color: #222; margin: 4px 0 2px 0; font-weight: 600; }
+        ul { padding-left: 16px; margin: 4px 0; }
+        li { margin-bottom: 2px; line-height: 1.45; }
+        p { margin: 0 0 4px 0; }
+        hr { border: none; border-top: 1px solid #ccc; margin: 8px 0; }
+        .contact-line { font-size: 8.5pt; color: #555; margin-bottom: 6px; }
+        strong { font-weight: 600; }
     """,
     'modern': """
         @page { size: A4; margin: 0; }
-        body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; line-height: 1.5; color: #333; margin: 0; }
-        h1 { font-size: 20pt; color: #1a1a2e; margin-bottom: 4px; }
-        h2 { font-size: 13pt; color: #6366f1; margin-top: 16px; border-bottom: 2px solid #6366f1; padding-bottom: 3px; }
-        h3 { font-size: 11pt; color: #333; }
-        ul { padding-left: 18px; }
-        li { margin-bottom: 3px; }
-        p { margin-bottom: 6px; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; line-height: 1.5; color: #333; margin: 0; }
+        h1 { font-size: 19pt; color: #1a1a2e; margin-bottom: 3px; font-weight: 700; }
+        h2 { font-size: 10pt; color: #6366f1; margin-top: 14px; margin-bottom: 5px; border-bottom: 1.5px solid #6366f1; padding-bottom: 2px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+        h3 { font-size: 9.5pt; color: #333; margin: 3px 0 2px 0; font-weight: 600; }
+        ul { padding-left: 16px; margin: 3px 0; }
+        li { margin-bottom: 2px; line-height: 1.45; }
+        p { margin: 0 0 4px 0; }
+        strong { font-weight: 600; }
     """,
     'creative': """
         @page { size: A4; margin: 1.5cm; }
-        body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; line-height: 1.5; color: #333; }
-        h1 { font-size: 22pt; color: #1a1a2e; margin-bottom: 2px; font-weight: 800; }
-        h2 { font-size: 13pt; color: #6366f1; margin-top: 16px; font-weight: 700; }
-        h3 { font-size: 11pt; color: #333; }
-        ul { padding-left: 18px; list-style-type: none; }
-        li { margin-bottom: 3px; padding-left: 12px; }
-        p { margin-bottom: 6px; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; line-height: 1.5; color: #333; }
+        h1 { font-size: 21pt; color: #1a1a2e; margin: 0 0 2px 0; font-weight: 800; }
+        h2 { font-size: 10pt; color: #6366f1; margin-top: 14px; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        h3 { font-size: 9.5pt; color: #333; margin: 3px 0 2px 0; font-weight: 600; }
+        ul { padding-left: 16px; list-style-type: none; margin: 3px 0; }
+        li { margin-bottom: 2px; padding-left: 10px; line-height: 1.45; }
+        li::before { content: "▸ "; color: #6366f1; font-size: 8pt; }
+        p { margin: 0 0 4px 0; }
+        strong { font-weight: 700; }
     """,
     'minimal': """
-        @page { size: A4; margin: 2.5cm; }
-        body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; line-height: 1.7; color: #444; }
-        h1 { font-size: 18pt; color: #222; font-weight: 300; margin-bottom: 4px; }
-        h2 { font-size: 11pt; color: #222; border-bottom: 1px solid #ddd; padding-bottom: 3px; margin-top: 16px; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; }
-        h3 { font-size: 10pt; color: #444; font-weight: 500; }
-        ul { padding-left: 16px; }
-        li { margin-bottom: 2px; }
-        p { margin-bottom: 6px; }
-        hr { border: none; border-top: 1px solid #eee; margin: 10px 0; }
+        @page { size: A4; margin: 1.8cm 2.2cm; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; line-height: 1.6; color: #333; }
+        h1 { font-size: 20pt; color: #111; font-weight: 400; margin: 0 0 2px 0; letter-spacing: -0.3px; }
+        h2 { font-size: 9pt; color: #555; border-bottom: 1px solid #ddd; padding-bottom: 2px; margin-top: 14px; margin-bottom: 6px; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; }
+        h3 { font-size: 9.5pt; color: #222; font-weight: 600; margin: 3px 0 1px 0; }
+        ul { padding-left: 14px; margin: 3px 0; }
+        li { margin-bottom: 2px; line-height: 1.5; }
+        p { margin: 0 0 4px 0; }
+        hr { border: none; border-top: 1px solid #eee; margin: 8px 0; }
+        strong { font-weight: 600; }
     """,
 }
 
 DEFAULT_CSS = """
-    @page { size: A4; margin: 2cm; }
+    @page { size: A4; margin: 1.8cm 2cm; }
     body {
         font-family: Helvetica, Arial, sans-serif;
-        font-size: 10pt;
-        line-height: 1.5;
-        color: #333;
+        font-size: 9.5pt;
+        line-height: 1.55;
+        color: #222;
     }
-    h1 { font-size: 18pt; color: #1a1a2e; margin-bottom: 8px; }
-    h2 { font-size: 14pt; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-top: 16px; }
-    h3 { font-size: 12pt; color: #333; }
-    ul { padding-left: 20px; }
-    li { margin-bottom: 4px; }
-    p { margin-bottom: 8px; }
+    h1 { font-size: 20pt; color: #111; margin: 0 0 4px 0; font-weight: 700; }
+    h2 { font-size: 10.5pt; color: #111; border-bottom: 1.5px solid #111; padding-bottom: 3px; margin-top: 14px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+    h3 { font-size: 9.5pt; color: #222; margin: 4px 0 2px 0; font-weight: 600; }
+    ul { padding-left: 16px; margin: 4px 0; }
+    li { margin-bottom: 2px; line-height: 1.45; }
+    p { margin: 0 0 4px 0; }
+    hr { border: none; border-top: 1px solid #ccc; margin: 8px 0; }
+    strong { font-weight: 600; }
 """
 
 

@@ -1,25 +1,37 @@
 from datetime import datetime, timedelta, date
 from flask import Blueprint, request, jsonify
-from sqlalchemy import func, extract
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import func
 from ..extensions import db
 from ..models import Application, StatusHistory, Setting, UserProfile
 
 bp = Blueprint('dashboard', __name__, url_prefix='/api')
 
 
+def _current_user_id():
+    try:
+        return int(get_jwt_identity())
+    except Exception:
+        return None
+
+
 @bp.route('/dashboard/stats', methods=['GET'])
+@jwt_required()
 def get_stats():
-    total = Application.query.count()
+    user_id = _current_user_id()
+    base = Application.query.filter_by(user_id=user_id)
+
+    total = base.count()
 
     by_status = {}
-    rows = db.session.query(Application.status, func.count(Application.id)).group_by(Application.status).all()
+    rows = db.session.query(Application.status, func.count(Application.id)).filter_by(user_id=user_id).group_by(Application.status).all()
     for status, count in rows:
         by_status[status] = count
 
-    responded = Application.query.filter(Application.status.notin_(['sent', 'draft'])).count()
+    responded = base.filter(Application.status.notin_(['sent', 'draft'])).count()
     response_rate = round((responded / total) * 100, 1) if total > 0 else 0
 
-    responded_apps = Application.query.filter(
+    responded_apps = base.filter(
         Application.response_date.isnot(None),
         Application.applied_date.isnot(None),
     ).all()
@@ -33,11 +45,10 @@ def get_stats():
     start_of_week = today - timedelta(days=today.weekday())
     start_of_month = today.replace(day=1)
 
-    this_week = Application.query.filter(Application.applied_date >= start_of_week).count()
-    this_month = Application.query.filter(Application.applied_date >= start_of_month).count()
+    this_week = base.filter(Application.applied_date >= start_of_week).count()
+    this_month = base.filter(Application.applied_date >= start_of_month).count()
 
-    # Average match score
-    scored_apps = Application.query.filter(Application.match_score.isnot(None)).all()
+    scored_apps = base.filter(Application.match_score.isnot(None)).all()
     avg_match_score = round(sum(a.match_score for a in scored_apps) / len(scored_apps), 1) if scored_apps else None
 
     return jsonify({
@@ -52,21 +63,22 @@ def get_stats():
 
 
 @bp.route('/dashboard/timeline', methods=['GET'])
+@jwt_required()
 def get_timeline():
+    user_id = _current_user_id()
     period = request.args.get('period', 'monthly')
     today = date.today()
+    base = Application.query.filter_by(user_id=user_id)
 
     DAY_NAMES_IT = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
 
     if period == 'weekly':
-        # Current week: Mon-Sun with each day's applications
         start_of_week = today - timedelta(days=today.weekday())
-        apps = Application.query.filter(
+        apps = base.filter(
             Application.applied_date >= start_of_week,
             Application.applied_date <= today,
         ).all()
 
-        # Group apps by date
         apps_by_date = {}
         for a in apps:
             key = a.applied_date.isoformat()
@@ -92,13 +104,11 @@ def get_timeline():
         return jsonify({'data': timeline})
 
     elif period == 'daily':
-        # Last 30 days cumulative with application details
         cutoff = today - timedelta(days=29)
-        apps = Application.query.filter(
+        apps = base.filter(
             Application.applied_date >= cutoff
         ).order_by(Application.applied_date.asc()).all()
 
-        # Group apps by date
         apps_by_date = {}
         for a in apps:
             key = a.applied_date.isoformat()
@@ -128,11 +138,8 @@ def get_timeline():
         return jsonify({'data': timeline})
 
     else:
-        # Monthly: last 12 months
         cutoff = today - timedelta(days=365)
-        apps = Application.query.filter(
-            Application.applied_date >= cutoff
-        ).all()
+        apps = base.filter(Application.applied_date >= cutoff).all()
 
         apps_by_month = {}
         for a in apps:
@@ -144,7 +151,6 @@ def get_timeline():
                 'status': a.status, 'match_score': a.match_score,
             })
 
-        # Fill all months
         timeline = []
         for i in range(12):
             d = today.replace(day=1) - timedelta(days=30 * (11 - i))
@@ -156,7 +162,6 @@ def get_timeline():
                 'applications': month_apps,
             })
 
-        # Deduplicate and sort
         seen = set()
         unique_timeline = []
         for entry in timeline:
@@ -169,9 +174,15 @@ def get_timeline():
 
 
 @bp.route('/dashboard/recent', methods=['GET'])
+@jwt_required()
 def get_recent():
-    recent_apps = Application.query.order_by(Application.created_at.desc()).limit(5).all()
-    recent_changes = StatusHistory.query.order_by(StatusHistory.changed_at.desc()).limit(5).all()
+    user_id = _current_user_id()
+    recent_apps = Application.query.filter_by(user_id=user_id).order_by(Application.created_at.desc()).limit(5).all()
+
+    user_app_ids = [a.id for a in Application.query.filter_by(user_id=user_id).with_entities(Application.id).all()]
+    recent_changes = StatusHistory.query.filter(
+        StatusHistory.application_id.in_(user_app_ids)
+    ).order_by(StatusHistory.changed_at.desc()).limit(5).all()
 
     return jsonify({
         'recent_applications': [a.to_dict() for a in recent_apps],
@@ -180,18 +191,21 @@ def get_recent():
 
 
 @bp.route('/dashboard/deadline-alerts', methods=['GET'])
+@jwt_required()
 def deadline_alerts():
+    user_id = _current_user_id()
     today = date.today()
     next_week = today + timedelta(days=7)
+    base = Application.query.filter_by(user_id=user_id)
 
-    upcoming = Application.query.filter(
+    upcoming = base.filter(
         Application.deadline.isnot(None),
         Application.deadline >= today,
         Application.deadline <= next_week,
         Application.status.in_(['draft', 'sent']),
     ).order_by(Application.deadline.asc()).all()
 
-    overdue = Application.query.filter(
+    overdue = base.filter(
         Application.deadline.isnot(None),
         Application.deadline < today,
         Application.status == 'draft',
@@ -216,18 +230,25 @@ def deadline_alerts():
 
 
 @bp.route('/dashboard/funnel', methods=['GET'])
+@jwt_required()
 def get_funnel():
-    total = Application.query.count()
-    sent = Application.query.filter(
+    user_id = _current_user_id()
+    base = Application.query.filter_by(user_id=user_id)
+
+    total = base.count()
+    sent = base.filter(
         Application.status.in_(['sent', 'interview', 'rejected'])
     ).count()
 
-    # Count all that ever reached interview (via StatusHistory)
+    user_app_ids = [a.id for a in base.with_entities(Application.id).all()]
     interview_ever = db.session.query(
         func.count(func.distinct(StatusHistory.application_id))
-    ).filter(StatusHistory.to_status == 'interview').scalar() or 0
+    ).filter(
+        StatusHistory.application_id.in_(user_app_ids),
+        StatusHistory.to_status == 'interview',
+    ).scalar() or 0
 
-    rejected = Application.query.filter(Application.status == 'rejected').count()
+    rejected = base.filter(Application.status == 'rejected').count()
 
     def rate(num, den):
         return round((num / den) * 100, 1) if den > 0 else 0
@@ -247,12 +268,14 @@ def get_funnel():
 
 
 @bp.route('/dashboard/followup-suggestions', methods=['GET'])
+@jwt_required()
 def followup_suggestions():
+    user_id = _current_user_id()
     today = date.today()
+    base = Application.query.filter_by(user_id=user_id)
     suggestions = []
 
-    # Sent >7 days ago with no response
-    sent_stale = Application.query.filter(
+    sent_stale = base.filter(
         Application.status == 'sent',
         Application.applied_date <= today - timedelta(days=7),
         Application.response_date.is_(None),
@@ -267,10 +290,7 @@ def followup_suggestions():
             'context': f'{days_waiting} days since application was sent, no response received',
         })
 
-    # Interview >3 days ago
-    interview_apps = Application.query.filter(
-        Application.status == 'interview',
-    ).all()
+    interview_apps = base.filter(Application.status == 'interview').all()
 
     for app in interview_apps:
         history = StatusHistory.query.filter(

@@ -33,6 +33,9 @@ crea-icona-desktop.vbs
 # Windows artifacts
 nul
 To tart.txt
+To start.txt
+*.TMP
+*.tmp
 
 # Claude Code
 .claude/

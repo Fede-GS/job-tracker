@@ -1,12 +1,90 @@
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timezone
+from werkzeug.security import generate_password_hash, check_password_hash
 from .extensions import db
 
+
+# ── Authentication Models ──────────────────────────────────────────────────────
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), nullable=False, unique=True)
+    password_hash = db.Column(db.String(256), nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    role = db.Column(db.String(20), default='user', nullable=False)  # 'user' | 'admin'
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    profile = db.relationship('UserProfile', backref='user', uselist=False, cascade='all, delete-orphan')
+    applications = db.relationship('Application', backref='user', cascade='all, delete-orphan')
+    ai_insight = db.relationship('UserAIInsight', backref='user', uselist=False, cascade='all, delete-orphan')
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'is_active': self.is_active,
+            'role': self.role,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class InvitedEmail(db.Model):
+    __tablename__ = 'invited_emails'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    used_at = db.Column(db.DateTime, nullable=True)
+    used_by_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'used_at': self.used_at.isoformat() if self.used_at else None,
+            'used_by_user_id': self.used_by_user_id,
+        }
+
+
+class UserAIInsight(db.Model):
+    __tablename__ = 'user_ai_insights'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
+    insight_data = db.Column(db.Text)  # JSON string
+    last_updated = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self):
+        data = None
+        if self.insight_data:
+            try:
+                data = json.loads(self.insight_data)
+            except Exception:
+                data = self.insight_data
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'insight_data': data,
+            'last_updated': self.last_updated.isoformat() if self.last_updated else None,
+        }
+
+
+# ── Profile ────────────────────────────────────────────────────────────────────
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     full_name = db.Column(db.String(200))
     email = db.Column(db.String(200))
     phone = db.Column(db.String(50))
@@ -20,8 +98,9 @@ class UserProfile(db.Model):
     languages = db.Column(db.Text, default='[]')
     certifications = db.Column(db.Text, default='[]')
     onboarding_completed = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    setup_method = db.Column(db.String(20), nullable=True)  # 'cv_upload' | 'linkedin' | 'manual'
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     def _parse_json(self, field):
         val = getattr(self, field)
@@ -59,6 +138,7 @@ class Application(db.Model):
     __tablename__ = 'applications'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     company = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(200), nullable=False)
     location = db.Column(db.String(200))
@@ -79,8 +159,8 @@ class Application(db.Model):
     job_posting_text = db.Column(db.Text)
     generated_cv_html = db.Column(db.Text)
     generated_cover_letter_html = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     status_history = db.relationship('StatusHistory', backref='application', cascade='all, delete-orphan', order_by='StatusHistory.changed_at.desc()')
     documents = db.relationship('Document', backref='application', cascade='all, delete-orphan', order_by='Document.uploaded_at.desc()')
@@ -134,7 +214,7 @@ class StatusHistory(db.Model):
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'), nullable=False)
     from_status = db.Column(db.String(20))
     to_status = db.Column(db.String(20), nullable=False)
-    changed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    changed_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     note = db.Column(db.Text)
 
     def to_dict(self):
@@ -152,13 +232,14 @@ class Document(db.Model):
     __tablename__ = 'documents'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'), nullable=True)
     filename = db.Column(db.String(300), nullable=False)
     stored_filename = db.Column(db.String(300), nullable=False)
     file_type = db.Column(db.String(50), nullable=False)
     file_size = db.Column(db.Integer, nullable=False)
     doc_category = db.Column(db.String(30), nullable=False, default='cv')
-    uploaded_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    uploaded_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {
@@ -180,7 +261,7 @@ class Reminder(db.Model):
     remind_at = db.Column(db.DateTime, nullable=False)
     message = db.Column(db.String(500), nullable=False)
     is_dismissed = db.Column(db.Boolean, nullable=False, default=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {
@@ -199,11 +280,12 @@ class ChatMessage(db.Model):
     __tablename__ = 'chat_messages'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'), nullable=True)
     role = db.Column(db.String(20), nullable=False)
     content = db.Column(db.Text, nullable=False)
     step = db.Column(db.String(50))
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {
@@ -212,6 +294,55 @@ class ChatMessage(db.Model):
             'role': self.role,
             'content': self.content,
             'step': self.step,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class CareerConsultantSession(db.Model):
+    __tablename__ = 'career_consultant_sessions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    application_id = db.Column(db.Integer, db.ForeignKey('applications.id'), nullable=True)
+    title = db.Column(db.String(300))
+    topic = db.Column(db.String(100), default='general')
+    summary = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    messages = db.relationship('CareerConsultantMessage', backref='session', cascade='all, delete-orphan', order_by='CareerConsultantMessage.created_at')
+    application = db.relationship('Application', backref='consultant_sessions')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'application_id': self.application_id,
+            'title': self.title,
+            'topic': self.topic,
+            'summary': self.summary,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'messages': [m.to_dict() for m in self.messages],
+            'company': self.application.company if self.application else None,
+            'role': self.application.role if self.application else None,
+        }
+
+
+class CareerConsultantMessage(db.Model):
+    __tablename__ = 'career_consultant_messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Integer, db.ForeignKey('career_consultant_sessions.id'), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'session_id': self.session_id,
+            'role': self.role,
+            'content': self.content,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -252,8 +383,8 @@ class InterviewEvent(db.Model):
     notes = db.Column(db.Text)
     outcome = db.Column(db.String(30), default='pending')
     salary_offered = db.Column(db.String(100))
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     VALID_TYPES = ['phone_screen', 'technical', 'behavioral', 'final', 'other']
     VALID_OUTCOMES = ['pending', 'passed', 'failed', 'offer']

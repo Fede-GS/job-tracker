@@ -11,6 +11,7 @@ import Modal from '../components/common/Modal';
 import { SkeletonBlock, SkeletonStatCard, SkeletonChartCard } from '../components/common/Skeleton';
 import SmartTip from '../components/common/SmartTip';
 import PageTutorial from '../components/common/PageTutorial';
+import AIHistoryPanel from '../components/ai/AIHistoryPanel';
 import './Dashboard.css';
 
 const COLORS = {
@@ -276,6 +277,9 @@ export default function Dashboard() {
           <span className="stat-value">{stats?.this_week || 0}</span>
         </div>
       </div>
+
+      {/* AI History Analysis Panel */}
+      <AIHistoryPanel />
 
       <div className="charts-grid">
         <div className="card chart-card">

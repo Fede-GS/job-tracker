@@ -136,7 +136,9 @@ export default function TutorialOverlay({ isOpen, onClose }) {
 
   // Tooltip position: to the right of sidebar (sidebar is 240px)
   const tooltipLeft = 256; // 240 + 16 gap
-  const tooltipTop = targetRect ? targetRect.top + targetRect.height / 2 : 0;
+  const rawTop = targetRect ? targetRect.top + targetRect.height / 2 : 0;
+  // Clamp tooltip vertically so it stays within viewport (approx tooltip height ~220px)
+  const tooltipTop = Math.max(120, Math.min(rawTop, window.innerHeight - 120));
 
   return (
     <div className="tutorial-overlay" ref={overlayRef}>

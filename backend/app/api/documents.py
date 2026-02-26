@@ -1,6 +1,7 @@
 import os
 import uuid
 from flask import Blueprint, request, jsonify, send_from_directory, current_app
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from ..extensions import db
 from ..models import Application, Document
@@ -10,13 +11,22 @@ bp = Blueprint('documents', __name__, url_prefix='/api')
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt', 'png', 'jpg', 'jpeg'}
 
 
+def _current_user_id():
+    try:
+        return int(get_jwt_identity())
+    except Exception:
+        return None
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @bp.route('/applications/<int:app_id>/documents', methods=['POST'])
+@jwt_required()
 def upload_document(app_id):
-    db.get_or_404(Application, app_id)
+    user_id = _current_user_id()
+    Application.query.filter_by(id=app_id, user_id=user_id).first_or_404()
 
     if 'file' not in request.files:
         return jsonify({'error': {'message': 'No file provided'}}), 400
@@ -34,6 +44,7 @@ def upload_document(app_id):
     file.save(filepath)
 
     doc = Document(
+        user_id=user_id,
         application_id=app_id,
         filename=filename,
         stored_filename=stored_name,
@@ -48,15 +59,19 @@ def upload_document(app_id):
 
 
 @bp.route('/applications/<int:app_id>/documents', methods=['GET'])
+@jwt_required()
 def list_documents(app_id):
-    db.get_or_404(Application, app_id)
+    user_id = _current_user_id()
+    Application.query.filter_by(id=app_id, user_id=user_id).first_or_404()
     docs = Document.query.filter_by(application_id=app_id).order_by(Document.uploaded_at.desc()).all()
     return jsonify({'documents': [d.to_dict() for d in docs]})
 
 
 @bp.route('/documents/<int:doc_id>/download', methods=['GET'])
+@jwt_required()
 def download_document(doc_id):
-    doc = db.get_or_404(Document, doc_id)
+    user_id = _current_user_id()
+    doc = Document.query.filter_by(id=doc_id, user_id=user_id).first_or_404()
     return send_from_directory(
         current_app.config['UPLOAD_FOLDER'],
         doc.stored_filename,
@@ -66,8 +81,10 @@ def download_document(doc_id):
 
 
 @bp.route('/documents/<int:doc_id>', methods=['DELETE'])
+@jwt_required()
 def delete_document(doc_id):
-    doc = db.get_or_404(Document, doc_id)
+    user_id = _current_user_id()
+    doc = Document.query.filter_by(id=doc_id, user_id=user_id).first_or_404()
     filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], doc.stored_filename)
     if os.path.exists(filepath):
         os.remove(filepath)

@@ -15,6 +15,9 @@ from ..utils.prompts import (
     CHAT_PROMPT,
     GENERATE_FOLLOWUP_PROMPT,
     INTERVIEW_PREP_PROMPT,
+    EXTRACT_APPLICATION_METHOD_PROMPT,
+    CAREER_CONSULTANT_PROMPT,
+    CAREER_CONSULTANT_SAVE_SUMMARY_PROMPT,
 )
 
 
@@ -178,10 +181,17 @@ class GeminiService:
         cleaned = cleaned.strip().rstrip('`')
         return cleaned
 
-    def generate_cover_letter_html(self, job_posting, profile, company, role, instructions=None):
+    def generate_cover_letter_html(self, job_posting, profile, company, role, instructions=None, length='medium'):
         instructions_section = ""
         if instructions:
             instructions_section = f"Additional instructions: {instructions}"
+
+        length_map = {
+            'short': "LENGTH: Write a SHORT cover letter — 2 to 3 paragraphs only. Be concise and impactful.",
+            'medium': "LENGTH: Write a MEDIUM cover letter — 3 to 4 paragraphs. Balanced and professional.",
+            'long': "LENGTH: Write a LONG cover letter — 4 to 5 paragraphs. Detailed and comprehensive.",
+        }
+        length_instruction = length_map.get(length, length_map['medium'])
 
         prompt = GENERATE_COVER_LETTER_HTML_PROMPT.format(
             full_name=profile.get('full_name', ''),
@@ -191,6 +201,7 @@ class GeminiService:
             company=company,
             role=role,
             job_posting=job_posting,
+            length_instruction=length_instruction,
             instructions_section=instructions_section,
         )
         result = self._generate(prompt)
@@ -230,6 +241,65 @@ class GeminiService:
         )
         result = self._generate(prompt)
         return self._parse_json_response(result)
+
+    def extract_application_method(self, job_posting):
+        prompt = EXTRACT_APPLICATION_METHOD_PROMPT.format(job_posting=job_posting)
+        result = self._generate(prompt)
+        return self._parse_json_response(result)
+
+    def career_consultant_chat(self, message, context):
+        profile_section = ""
+        if context.get('profile'):
+            p = context['profile']
+            skills = ', '.join(p.get('skills', [])) if isinstance(p.get('skills'), list) else str(p.get('skills', ''))
+            experiences = json.dumps(p.get('work_experiences', []), ensure_ascii=False)
+            education = json.dumps(p.get('education', []), ensure_ascii=False)
+            languages = json.dumps(p.get('languages', []), ensure_ascii=False)
+            profile_section = (
+                f"Candidate profile:\n"
+                f"- Name: {p.get('full_name', 'N/A')}\n"
+                f"- Location: {p.get('location', 'N/A')}\n"
+                f"- Summary: {p.get('professional_summary', 'N/A')}\n"
+                f"- Skills: {skills}\n"
+                f"- Experience: {experiences}\n"
+                f"- Education: {education}\n"
+                f"- Languages: {languages}"
+            )
+
+        application_section = ""
+        if context.get('application'):
+            app = context['application']
+            application_section = (
+                f"Linked application:\n"
+                f"- Company: {app.get('company', 'N/A')}\n"
+                f"- Role: {app.get('role', 'N/A')}\n"
+                f"- Status: {app.get('status', 'N/A')}\n"
+                f"- Location: {app.get('location', 'N/A')}\n"
+                f"- Job Description: {(app.get('job_description') or '')[:500]}\n"
+                f"- Match Score: {app.get('match_score', 'N/A')}"
+            )
+
+        history_parts = []
+        for msg in context.get('history', [])[-15:]:
+            history_parts.append(f"{msg['role']}: {msg['content']}")
+        history = '\n'.join(history_parts) if history_parts else 'No previous messages — this is the start of the conversation.'
+
+        prompt = CAREER_CONSULTANT_PROMPT.format(
+            profile_section=profile_section,
+            application_section=application_section,
+            history=history,
+            topic=context.get('topic', 'general'),
+            message=message,
+        )
+        return self._generate(prompt)
+
+    def career_consultant_summarize(self, conversation, company, role):
+        prompt = CAREER_CONSULTANT_SAVE_SUMMARY_PROMPT.format(
+            conversation=conversation,
+            company=company,
+            role=role,
+        )
+        return self._generate(prompt)
 
     def chat(self, message, context):
         profile_section = ""

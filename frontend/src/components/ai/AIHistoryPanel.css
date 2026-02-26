@@ -1,0 +1,247 @@
+.ai-history-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.ai-history-panel:hover {
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.12);
+}
+
+.ai-history-panel.expanded {
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.15);
+}
+
+.ai-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(124, 58, 237, 0.04));
+  border-bottom: 1px solid transparent;
+  transition: background 0.2s ease;
+}
+
+.ai-history-panel.expanded .ai-panel-header {
+  border-bottom-color: var(--border-color);
+}
+
+.ai-panel-header:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(124, 58, 237, 0.07));
+}
+
+.ai-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-panel-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.ai-panel-title h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+}
+
+.ai-panel-title p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.ai-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-refresh-btn {
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 8px;
+}
+
+.ai-panel-body {
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Loading state */
+.ai-panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Error state */
+.ai-panel-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  color: var(--error, #ef4444);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Empty state */
+.ai-panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Insight text (markdown-like) */
+.ai-insight-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.ai-insight-text h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin: 16px 0 8px;
+}
+
+.ai-insight-text h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 12px 0 6px;
+}
+
+.ai-insight-text p {
+  margin: 4px 0;
+  color: var(--text-secondary);
+}
+
+.ai-insight-text li {
+  margin: 4px 0 4px 16px;
+  color: var(--text-secondary);
+  list-style: disc;
+}
+
+.ai-insight-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Structured insight */
+.ai-insight-structured {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.insight-summary {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0;
+  padding: 12px 16px;
+  background: rgba(99, 102, 241, 0.06);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 0 8px 8px 0;
+}
+
+.insight-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.insight-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: var(--bg-secondary, var(--bg-primary));
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.insight-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.insight-section h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.insight-section ul {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.insight-section li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.insight-section p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.ai-panel-timestamp {
+  font-size: 11px;
+  color: var(--text-muted, var(--text-secondary));
+  text-align: right;
+  margin: 12px 0 0;
+  opacity: 0.7;
+}

@@ -1,16 +1,26 @@
 import json
 import calendar
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..extensions import db
 from ..models import Application, StatusHistory, InterviewEvent
 
 bp = Blueprint('applications', __name__, url_prefix='/api')
 
 
+def _current_user_id():
+    try:
+        return int(get_jwt_identity())
+    except Exception:
+        return None
+
+
 @bp.route('/applications', methods=['GET'])
+@jwt_required()
 def list_applications():
-    query = Application.query
+    user_id = _current_user_id()
+    query = Application.query.filter_by(user_id=user_id)
 
     status = request.args.get('status')
     if status:
@@ -44,14 +54,16 @@ def list_applications():
 
 
 @bp.route('/applications/calendar', methods=['GET'])
+@jwt_required()
 def calendar_applications():
+    user_id = _current_user_id()
     year = request.args.get('year', date.today().year, type=int)
     month = request.args.get('month', date.today().month, type=int)
 
     first_day = date(year, month, 1)
     last_day = date(year, month, calendar.monthrange(year, month)[1])
 
-    query = Application.query.filter(
+    query = Application.query.filter_by(user_id=user_id).filter(
         Application.applied_date >= first_day,
         Application.applied_date <= last_day,
     )
@@ -63,8 +75,10 @@ def calendar_applications():
     query = query.order_by(Application.applied_date.asc())
     apps = query.all()
 
-    # Fetch interview events for this month
+    # Fetch interview events for this month (scoped to user's applications)
+    user_app_ids = [a.id for a in Application.query.filter_by(user_id=user_id).with_entities(Application.id).all()]
     interview_query = InterviewEvent.query.filter(
+        InterviewEvent.application_id.in_(user_app_ids),
         InterviewEvent.interview_date >= datetime(year, month, 1),
         InterviewEvent.interview_date <= datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59),
     ).order_by(InterviewEvent.interview_date.asc())
@@ -87,8 +101,10 @@ def calendar_applications():
 
 
 @bp.route('/applications/<int:app_id>', methods=['GET'])
+@jwt_required()
 def get_application(app_id):
-    app = db.get_or_404(Application, app_id)
+    user_id = _current_user_id()
+    app = Application.query.filter_by(id=app_id, user_id=user_id).first_or_404()
     data = app.to_dict()
     data['documents'] = [d.to_dict() for d in app.documents]
     data['reminders'] = [r.to_dict() for r in app.reminders]
@@ -99,7 +115,9 @@ def get_application(app_id):
 
 
 @bp.route('/applications', methods=['POST'])
+@jwt_required()
 def create_application():
+    user_id = _current_user_id()
     data = request.get_json()
     if not data:
         return jsonify({'error': {'message': 'Request body is required'}}), 400
@@ -117,6 +135,7 @@ def create_application():
         match_analysis = json.dumps(match_analysis)
 
     app = Application(
+        user_id=user_id,
         company=data['company'],
         role=data['role'],
         location=data.get('location'),
@@ -151,8 +170,10 @@ def create_application():
 
 
 @bp.route('/applications/<int:app_id>', methods=['PUT'])
+@jwt_required()
 def update_application(app_id):
-    app = db.get_or_404(Application, app_id)
+    user_id = _current_user_id()
+    app = Application.query.filter_by(id=app_id, user_id=user_id).first_or_404()
     data = request.get_json()
     if not data:
         return jsonify({'error': {'message': 'Request body is required'}}), 400
@@ -178,22 +199,26 @@ def update_application(app_id):
     if 'deadline' in data:
         app.deadline = date.fromisoformat(data['deadline']) if data['deadline'] else None
 
-    app.updated_at = datetime.utcnow()
+    app.updated_at = datetime.now(timezone.utc)
     db.session.commit()
     return jsonify({'application': app.to_dict()})
 
 
 @bp.route('/applications/<int:app_id>', methods=['DELETE'])
+@jwt_required()
 def delete_application(app_id):
-    app = db.get_or_404(Application, app_id)
+    user_id = _current_user_id()
+    app = Application.query.filter_by(id=app_id, user_id=user_id).first_or_404()
     db.session.delete(app)
     db.session.commit()
     return '', 204
 
 
 @bp.route('/applications/<int:app_id>/status', methods=['PATCH'])
+@jwt_required()
 def change_status(app_id):
-    app = db.get_or_404(Application, app_id)
+    user_id = _current_user_id()
+    app = Application.query.filter_by(id=app_id, user_id=user_id).first_or_404()
     data = request.get_json()
     new_status = data.get('status')
 
@@ -202,7 +227,7 @@ def change_status(app_id):
 
     old_status = app.status
     app.status = new_status
-    app.updated_at = datetime.utcnow()
+    app.updated_at = datetime.now(timezone.utc)
 
     if new_status != 'sent' and old_status == 'sent':
         app.response_date = date.today()

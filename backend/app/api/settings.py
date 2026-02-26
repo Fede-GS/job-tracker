@@ -1,13 +1,15 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from ..extensions import db
 from ..models import Setting
 
 bp = Blueprint('settings', __name__, url_prefix='/api')
 
-ALLOWED_KEYS = ['gemini_api_key', 'adzuna_app_id', 'adzuna_api_key', 'jsearch_api_key', 'theme', 'default_currency', 'language']
+ALLOWED_KEYS = ['gemini_api_key', 'adzuna_app_id', 'adzuna_api_key', 'jsearch_api_key', 'theme', 'default_currency', 'language', 'blackbox_api_key', 'ai_provider']
 
 
 @bp.route('/settings', methods=['GET'])
+@jwt_required()
 def get_settings():
     settings = {}
     for key in ALLOWED_KEYS:
@@ -16,6 +18,7 @@ def get_settings():
 
 
 @bp.route('/settings', methods=['PUT'])
+@jwt_required()
 def update_settings():
     data = request.get_json()
     if not data:
@@ -33,6 +36,7 @@ def update_settings():
 
 
 @bp.route('/settings/test-api-key', methods=['GET'])
+@jwt_required()
 def test_api_key():
     api_key = Setting.get('gemini_api_key')
     if not api_key:

@@ -1,7 +1,9 @@
 import json
 import requests as http_requests
 from datetime import date
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..extensions import db
 from ..models import Application, Setting, UserProfile, StatusHistory
 from ..services.adzuna_service import AdzunaService
@@ -9,6 +11,13 @@ from ..services.jsearch_service import JSearchService
 from ..services.gemini_service import GeminiService
 
 bp = Blueprint('job_search', __name__, url_prefix='/api')
+
+
+def _current_user_id():
+    try:
+        return int(get_jwt_identity())
+    except Exception:
+        return None
 
 
 def _get_adzuna_service():
@@ -42,23 +51,27 @@ def _get_gemini_service():
         return None, jsonify({'error': {'message': f'Failed to initialize Gemini: {str(e)}'}}), 500
 
 
-def _get_profile_dict():
-    profile = UserProfile.query.first()
+def _get_profile_dict(user_id=None):
+    if user_id:
+        profile = UserProfile.query.filter_by(user_id=user_id).first()
+    else:
+        profile = UserProfile.query.first()
     return profile.to_dict() if profile else {}
 
 
 @bp.route('/job-search/smart-suggestions', methods=['GET'])
+@jwt_required()
 def smart_suggestions():
     """Generate search queries based on user profile."""
     gemini, error_response, status = _get_gemini_service()
     if error_response:
         return error_response, status
 
-    profile = _get_profile_dict()
+    user_id = _current_user_id()
+    profile = _get_profile_dict(user_id)
     if not profile.get('full_name'):
         return jsonify({'error': {'message': 'Complete your profile first.'}}), 400
 
-    # Build context from profile
     skills = profile.get('skills', [])
     experiences = profile.get('work_experiences', [])
     summary = profile.get('professional_summary', '')
@@ -84,7 +97,6 @@ Return ONLY valid JSON, no markdown."""
         suggestions = gemini._parse_json_response(result)
         return jsonify({'suggestions': suggestions, 'profile_location': location})
     except Exception as e:
-        # Fallback: generate suggestions from profile data directly
         fallback = []
         for role in recent_roles[:3]:
             fallback.append({'query': role, 'location': location})
@@ -94,6 +106,7 @@ Return ONLY valid JSON, no markdown."""
 
 
 @bp.route('/job-search/search', methods=['GET'])
+@jwt_required()
 def search_jobs():
     source = request.args.get('source', 'adzuna').strip()
     q = request.args.get('q', '').strip()
@@ -118,17 +131,42 @@ def search_jobs():
             service, error_response, status = _get_adzuna_service()
             if error_response:
                 return error_response, status
-            country = request.args.get('country', 'gb').strip()
-            results = service.search_jobs(
-                query=q,
-                location=location,
-                country=country,
-                page=page,
-                per_page=15,
-            )
+            country = request.args.get('country', 'it').strip()
+
+            if country == 'all':
+                ALL_COUNTRIES = ['it', 'at', 'be', 'ch', 'de', 'es', 'fr', 'gb', 'nl', 'pl', 'us']
+                all_jobs = []
+                total_count = 0
+
+                def search_country(c):
+                    return service.search_jobs(query=q, location=location, country=c, page=1, per_page=3)
+
+                with ThreadPoolExecutor(max_workers=5) as executor:
+                    futures = {executor.submit(search_country, c): c for c in ALL_COUNTRIES}
+                    for future in as_completed(futures):
+                        try:
+                            result = future.result()
+                            all_jobs.extend(result.get('jobs', []))
+                            total_count += result.get('total', 0)
+                        except Exception:
+                            pass
+
+                results = {
+                    'jobs': all_jobs[:15],
+                    'total': total_count,
+                    'page': 1,
+                    'pages': 1,
+                }
+            else:
+                results = service.search_jobs(
+                    query=q,
+                    location=location,
+                    country=country,
+                    page=page,
+                    per_page=15,
+                )
         return jsonify(results)
     except http_requests.exceptions.HTTPError as e:
-        # Show actual API error message for better debugging
         error_msg = str(e)
         try:
             error_body = e.response.json()
@@ -141,11 +179,13 @@ def search_jobs():
 
 
 @bp.route('/job-search/analyze-match', methods=['POST'])
+@jwt_required()
 def analyze_match():
     gemini, error_response, status = _get_gemini_service()
     if error_response:
         return error_response, status
 
+    user_id = _current_user_id()
     data = request.get_json()
     job_description = data.get('job_description', '').strip()
     job_title = data.get('job_title', '')
@@ -154,7 +194,7 @@ def analyze_match():
     if not job_description:
         return jsonify({'error': {'message': 'Job description is required'}}), 400
 
-    profile = _get_profile_dict()
+    profile = _get_profile_dict(user_id)
     if not profile.get('full_name'):
         return jsonify({'error': {'message': 'User profile not found. Complete your profile first.'}}), 400
 
@@ -168,7 +208,9 @@ def analyze_match():
 
 
 @bp.route('/job-search/save-application', methods=['POST'])
+@jwt_required()
 def save_application():
+    user_id = _current_user_id()
     data = request.get_json()
     if not data:
         return jsonify({'error': {'message': 'Request body is required'}}), 400
@@ -179,17 +221,14 @@ def save_application():
     if not title or not company:
         return jsonify({'error': {'message': 'Title and company are required'}}), 400
 
-    # Build job posting text from Adzuna data
     job_posting_text = data.get('description', '')
 
-    # Parse match analysis if provided
     match_analysis = data.get('match_analysis')
     match_score = None
     if match_analysis:
         match_score = match_analysis.get('match_score')
         match_analysis = json.dumps(match_analysis)
 
-    # Convert salary to int (Adzuna sends floats)
     salary_min = data.get('salary_min')
     salary_max = data.get('salary_max')
     if salary_min is not None:
@@ -199,6 +238,7 @@ def save_application():
 
     try:
         application = Application(
+            user_id=user_id,
             company=company,
             role=title,
             location=data.get('location', ''),
@@ -216,7 +256,6 @@ def save_application():
         db.session.add(application)
         db.session.flush()
 
-        # Create initial status history
         history = StatusHistory(
             application_id=application.id,
             from_status=None,

@@ -42,11 +42,7 @@ export default function ChatSidebar({ context = {}, collapsed = false, onToggle 
   };
 
   if (collapsed) {
-    return (
-      <button className="chat-toggle-btn" onClick={onToggle} title={t('chat.title')}>
-        💬
-      </button>
-    );
+    return null;
   }
 
   return (
